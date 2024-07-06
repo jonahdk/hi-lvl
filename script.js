@@ -67,13 +67,29 @@ function calculateHighLevel() {
                     * decayFactor;
 
     // Normalize to 0-100 scale
-    const maxHighLevel = 8;  // Maximum theoretical high level as calculated earlier
+    const maxHighLevel = 100;  // Maximum theoretical high level
     const normalizedHighLevel = (highLevel / maxHighLevel) * 100;
+
+    // Determine side effects based on normalized high level
+    let sideEffects = "";
+    if (normalizedHighLevel >= 0 && normalizedHighLevel <= 10) {
+        sideEffects = "Mild to moderate effects. Users may feel slightly relaxed, increased appetite, dry mouth.";
+    } else if (normalizedHighLevel > 10 && normalizedHighLevel <= 30) {
+        sideEffects = "Moderate to moderately high effects. Users may experience euphoria, altered perception of time, increased heart rate.";
+    } else if (normalizedHighLevel > 30 && normalizedHighLevel <= 50) {
+        sideEffects = "High effects. Pronounced euphoria, impaired short-term memory, increased sensory perception.";
+    } else if (normalizedHighLevel > 50 && normalizedHighLevel <= 70) {
+        sideEffects = "Very high effects. Intense euphoria, hallucinations, impaired motor coordination, heightened sensitivity to light and sound.";
+    } else if (normalizedHighLevel > 70 && normalizedHighLevel <= 100) {
+        sideEffects = "Extremely high effects. Overwhelming euphoria, paranoia, intense hallucinations, significant impairment of motor skills, sedation.";
+    }
 
     // Display result
     const resultElement = document.getElementById('result');
     resultElement.innerHTML = `
         <div class="alert alert-success" role="alert">
-            The estimated high level is: ${normalizedHighLevel.toFixed(2)} out of 100
+            <p>The estimated high level is: ${normalizedHighLevel.toFixed(2)} out of 100</p>
+            <p><strong>Side Effects:</strong></p>
+            <p>${sideEffects}</p>
         </div>`;
 }
