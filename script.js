@@ -3,6 +3,7 @@ function calculateHighLevel() {
     const lungCapacity = 6;  // Average lung capacity in liters
     const baselineTHC = 5;   // Baseline THC concentration in smoke (assuming no dilution)
     const standardTime = 5;  // Standard time in seconds
+    const decayConstant = Math.log(2) / 2;  // Half-life of THC is approximately 2 hours
 
     // Fetch user inputs
     const volume = parseFloat(document.getElementById('volume').value);
@@ -49,10 +50,6 @@ function calculateHighLevel() {
             return;
     }
 
-    // Calculate decay factor
-    const decayConstant = Math.log(2) / 2;  // Half-life of THC is approximately 2 hours
-    const decayFactor = Math.exp(-decayConstant * timeSinceSmoking);
-
     // Calculate weight ratio
     const standardWeight = 70;  // Average weight in kg
     const weightRatio = standardWeight / bodyWeight;
@@ -63,14 +60,25 @@ function calculateHighLevel() {
                     * (inhalationTime / standardTime)
                     * strainFactor
                     * weightRatio
-                    * frequencyFactor
-                    * decayFactor;
+                    * frequencyFactor;
+
+    // Calculate decay factor based on time since smoking
+    const decayFactor = Math.exp(-decayConstant * timeSinceSmoking);
+
+    // Multiply by decay factor
+    highLevel *= decayFactor;
 
     // Multiply by 178.571425
     highLevel *= 178.571425;
 
     // Normalize to 0-100 scale and clamp to maximum 100
     let normalizedHighLevel = (highLevel > 100) ? 100 : (highLevel / 100) * 100;
+
+    // Calculate time until high level reaches 0
+    const timeToZero = (Math.log(1 / (highLevel / 100)) / -decayConstant).toFixed(2); // in hours
+
+    // Calculate time until high level reaches 100
+    const timeTo100 = (Math.log(2) / decayConstant).toFixed(2); // in hours
 
     // Determine side effects based on normalized high level
     let sideEffects = "";
@@ -93,5 +101,7 @@ function calculateHighLevel() {
             <p>The estimated high level is: ${normalizedHighLevel.toFixed(2)} out of 100</p>
             <p><strong>Side Effects:</strong></p>
             <p>${sideEffects}</p>
+            <p><strong>Time until high level reaches 0:</strong> ${timeToZero} hours</p>
+            <p><strong>Time until high level reaches 100:</strong> ${timeTo100} hours</p>
         </div>`;
-}
+        }
