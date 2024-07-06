@@ -69,9 +69,8 @@ function calculateHighLevel() {
     // Multiply by 178.571425
     highLevel *= 178.571425;
 
-    // Normalize to 0-100 scale
-    const maxHighLevel = 100;  // Maximum theoretical high level
-    const normalizedHighLevel = (highLevel / maxHighLevel) * 100;
+    // Normalize to 0-100 scale and clamp to maximum 100
+    let normalizedHighLevel = (highLevel > 100) ? 100 : (highLevel / 100) * 100;
 
     // Determine side effects based on normalized high level
     let sideEffects = "";
@@ -95,4 +94,4 @@ function calculateHighLevel() {
             <p><strong>Side Effects:</strong></p>
             <p>${sideEffects}</p>
         </div>`;
-        }
+}
