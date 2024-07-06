@@ -58,13 +58,16 @@ function calculateHighLevel() {
     const weightRatio = standardWeight / bodyWeight;
 
     // Calculate high level
-    const highLevel = (volume / lungCapacity)
+    let highLevel = (volume / lungCapacity)
                     * (thcConcentration / baselineTHC)
                     * (inhalationTime / standardTime)
                     * strainFactor
                     * weightRatio
                     * frequencyFactor
                     * decayFactor;
+
+    // Multiply by 178.571425
+    highLevel *= 178.571425;
 
     // Normalize to 0-100 scale
     const maxHighLevel = 100;  // Maximum theoretical high level
@@ -92,4 +95,4 @@ function calculateHighLevel() {
             <p><strong>Side Effects:</strong></p>
             <p>${sideEffects}</p>
         </div>`;
-}
+        }
