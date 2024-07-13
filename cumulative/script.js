@@ -1,6 +1,3 @@
-// Array to store sessions
-let sessions = [];
-
 // Function to add a new session
 function addSession() {
     // Fetch user inputs for the new session
@@ -13,8 +10,6 @@ function addSession() {
 
     // Calculate THC concentration in decimal form
     const thcConcentration = thcConcentrationPercentage / 100.0;
-
-    // Validate inputs (optional)
 
     // Create session object with timestamp
     const session = {
@@ -30,6 +25,9 @@ function addSession() {
     // Add session to array
     sessions.push(session);
 
+    // Save sessions to cookies
+    saveSessionsToCookies();
+
     // Clear form inputs (optional)
     clearFormInputs();
 
@@ -38,14 +36,29 @@ function addSession() {
     calculateCumulativeHighLevel();
 }
 
-// Function to clear form inputs after adding a session (optional)
-function clearFormInputs() {
-    document.getElementById('volume').value = '';
-    document.getElementById('thcConcentration').value = '';
-    document.getElementById('inhalationTime').value = '';
-    document.getElementById('strain').value = '';
-    document.getElementById('frequency').value = '';
-    document.getElementById('bodyWeight').value = '';
+// Function to save sessions to cookies
+function saveSessionsToCookies() {
+    // Convert sessions array to JSON string
+    const sessionsJSON = JSON.stringify(sessions);
+
+    // Set sessions JSON string as cookie
+    document.cookie = `thc_sessions=${sessionsJSON}; path=/`; // Use a specific cookie name ('thc_sessions') for clarity
+}
+
+// Function to load sessions from cookies
+function loadSessionsFromCookies() {
+    const cookies = document.cookie.split(';');
+    let sessionsJSON = '';
+
+    // Find the cookie containing session data
+    cookies.forEach(cookie => {
+        if (cookie.trim().startsWith('thc_sessions=')) {
+            sessionsJSON = cookie.trim().substring('thc_sessions='.length);
+        }
+    });
+
+    // Parse sessions JSON string to array
+    sessions = JSON.parse(sessionsJSON) || [];
 }
 
 // Function to display sessions and calculate cumulative high level
@@ -100,3 +113,10 @@ function calculateCumulativeHighLevel() {
             <p>The estimated cumulative high level is: ${normalizedCumulativeHighLevel.toFixed(2)} out of 100</p>
         </div>`;
 }
+
+// Load sessions from cookies on page load
+document.addEventListener('DOMContentLoaded', () => {
+    loadSessionsFromCookies();
+    displaySessions();
+    calculateCumulativeHighLevel();
+});
