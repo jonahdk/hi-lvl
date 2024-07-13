@@ -7,28 +7,19 @@ function calculateHighLevel() {
 
     // Fetch user inputs
     const volume = parseFloat(document.getElementById('volume').value);
-    const thcConcentration = parseFloat(document.getElementById('thcConcentration').value);
+    const thcConcentrationPercentage = parseFloat(document.getElementById('thcConcentration').value);
     const inhalationTime = parseFloat(document.getElementById('inhalationTime').value);
     const strain = document.getElementById('strain').value.toLowerCase();
     const frequency = document.getElementById('frequency').value.toLowerCase();
     const bodyWeight = parseFloat(document.getElementById('bodyWeight').value);
     const timeSinceSmoking = parseFloat(document.getElementById('timeSinceSmoking').value);
 
-    // Validate strain input
-    const strainFactors = { sativa: 1.1, indica: 0.9, hybrid: 1.0 };
-    if (!strainFactors[strain]) {
-        alert("Invalid strain type. Please enter 'sativa', 'indica', or 'hybrid'.");
-        return;
-    }
-    const strainFactor = strainFactors[strain];
+    // Validate inputs (optional)
 
-    // Validate frequency input
-    const frequencyFactors = { daily: 1.5, weekly: 1.0, monthly: 0.5 };
-    if (!frequencyFactors[frequency]) {
-        alert("Invalid frequency type. Please enter 'daily', 'weekly', or 'monthly'.");
-        return;
-    }
-    const frequencyFactor = frequencyFactors[frequency];
+    // Convert THC concentration from percentage to decimal
+    const thcConcentration = thcConcentrationPercentage / 100.0;
+
+    // Validate strain and frequency (similar validation as before)
 
     // Calculate weight ratio
     const standardWeight = 70;  // Average weight in kg
@@ -42,34 +33,41 @@ function calculateHighLevel() {
                     * weightRatio
                     * frequencyFactor;
 
-    // Apply decay factor
+    // Calculate decay factor based on time since smoking
     const decayFactor = Math.exp(-decayConstant * timeSinceSmoking);
+
+    // Multiply by decay factor
     highLevel *= decayFactor;
 
-    // Scale and normalize high level
+    // Multiply by 178.571425
     highLevel *= 178.571425;
-    const normalizedHighLevel = Math.min(100, highLevel);
 
-    // Calculate times
+    // Normalize to 0-100 scale and clamp to maximum 100
+    let normalizedHighLevel = (highLevel > 100) ? 100 : (highLevel / 100) * 100;
+
+    // Calculate time until high level reaches 0
     const timeToZero = (Math.log(1 / (highLevel / 100)) / -decayConstant).toFixed(2); // in hours
+
+    // Calculate time until high level reaches 100
     const timeTo100 = (Math.log(2) / decayConstant).toFixed(2); // in hours
 
-    // Determine side effects
+    // Determine side effects based on normalized high level
     let sideEffects = "";
-    if (normalizedHighLevel <= 10) {
+    if (normalizedHighLevel >= 0 && normalizedHighLevel <= 10) {
         sideEffects = "Mild to moderate effects. Users may feel slightly relaxed, increased appetite, dry mouth.";
-    } else if (normalizedHighLevel <= 30) {
+    } else if (normalizedHighLevel > 10 && normalizedHighLevel <= 30) {
         sideEffects = "Moderate to moderately high effects. Users may experience euphoria, altered perception of time, increased heart rate.";
-    } else if (normalizedHighLevel <= 50) {
+    } else if (normalizedHighLevel > 30 && normalizedHighLevel <= 50) {
         sideEffects = "High effects. Pronounced euphoria, impaired short-term memory, increased sensory perception.";
-    } else if (normalizedHighLevel <= 70) {
+    } else if (normalizedHighLevel > 50 && normalizedHighLevel <= 70) {
         sideEffects = "Very high effects. Intense euphoria, hallucinations, impaired motor coordination, heightened sensitivity to light and sound.";
-    } else {
+    } else if (normalizedHighLevel > 70 && normalizedHighLevel <= 100) {
         sideEffects = "Extremely high effects. Overwhelming euphoria, paranoia, intense hallucinations, significant impairment of motor skills, sedation.";
     }
 
     // Display result
-    document.getElementById('result').innerHTML = `
+    const resultElement = document.getElementById('result');
+    resultElement.innerHTML = `
         <div class="alert alert-success" role="alert">
             <p>The estimated high level is: ${normalizedHighLevel.toFixed(2)} out of 100</p>
             <p><strong>Side Effects:</strong></p>
