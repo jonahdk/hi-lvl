@@ -10,7 +10,6 @@ function addSession() {
     const strain = document.getElementById('strain').value.toLowerCase();
     const frequency = document.getElementById('frequency').value.toLowerCase();
     const bodyWeight = parseFloat(document.getElementById('bodyWeight').value);
-    const timeSinceSmoking = parseFloat(document.getElementById('timeSinceSmoking').value);
 
     // Calculate THC concentration in decimal form
     const thcConcentration = thcConcentrationPercentage / 100.0;
@@ -25,8 +24,7 @@ function addSession() {
         inhalationTime: inhalationTime,
         strain: strain,
         frequency: frequency,
-        bodyWeight: bodyWeight,
-        timeSinceSmoking: timeSinceSmoking
+        bodyWeight: bodyWeight
     };
 
     // Add session to array
@@ -48,7 +46,6 @@ function clearFormInputs() {
     document.getElementById('strain').value = '';
     document.getElementById('frequency').value = '';
     document.getElementById('bodyWeight').value = '';
-    document.getElementById('timeSinceSmoking').value = '';
 }
 
 // Function to display sessions and calculate cumulative high level
@@ -69,7 +66,6 @@ function displaySessions() {
                     <li><strong>Strain:</strong> ${session.strain}</li>
                     <li><strong>Frequency:</strong> ${session.frequency}</li>
                     <li><strong>Body Weight:</strong> ${session.bodyWeight} kg</li>
-                    <li><strong>Time Since Smoking:</strong> ${session.timeSinceSmoking} hours</li>
                 </ul>
             </div>`;
         sessionsContainer.appendChild(sessionElement);
@@ -89,8 +85,6 @@ function calculateCumulativeHighLevel() {
                         * (standardWeight / session.bodyWeight)
                         * frequencyFactor;
 
-        const decayFactor = Math.exp(-decayConstant * session.timeSinceSmoking);
-        highLevel *= decayFactor;
         highLevel *= 178.571425;
 
         cumulativeHighLevel += highLevel;
