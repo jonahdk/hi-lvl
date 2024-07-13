@@ -17,8 +17,9 @@ function addSession() {
 
     // Validate inputs (optional)
 
-    // Create session object
+    // Create session object with timestamp
     const session = {
+        timestamp: new Date().toLocaleString(), // Capture current timestamp
         volume: volume,
         thcConcentration: thcConcentration,
         inhalationTime: inhalationTime,
@@ -34,10 +35,8 @@ function addSession() {
     // Clear form inputs (optional)
     clearFormInputs();
 
-    // Update displayed sessions
+    // Update displayed sessions and calculate cumulative high level
     displaySessions();
-
-    // Calculate cumulative high level
     calculateCumulativeHighLevel();
 }
 
@@ -52,7 +51,7 @@ function clearFormInputs() {
     document.getElementById('timeSinceSmoking').value = '';
 }
 
-// Function to display sessions in the DOM
+// Function to display sessions and calculate cumulative high level
 function displaySessions() {
     const sessionsContainer = document.getElementById('sessions');
     sessionsContainer.innerHTML = '';
@@ -62,7 +61,7 @@ function displaySessions() {
         sessionElement.classList.add('card', 'mb-2');
         sessionElement.innerHTML = `
             <div class="card-body">
-                <h5 class="card-title">Session ${index + 1}</h5>
+                <h5 class="card-title">Session ${index + 1} - ${session.timestamp}</h5>
                 <ul class="list-unstyled">
                     <li><strong>Volume:</strong> ${session.volume} liters</li>
                     <li><strong>THC Concentration:</strong> ${session.thcConcentration * 100}%</li>
