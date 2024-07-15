@@ -4,9 +4,9 @@ const baselineTHC = 5;   // Baseline THC concentration in smoke (assuming no dil
 const standardTime = 5;  // Standard time in seconds
 const decayConstant = Math.log(2) / 2;  // Half-life of THC is approximately 2 hours
 const strainFactors = {
-    sativa: 1.2,
-    indica: 1.0,
-    hybrid: 1.1
+    sativa: 1.0,
+    indica: 2.0,
+    hybrid: 1.5
 };
 const frequencyFactors = {
     daily: 1.5,
@@ -158,7 +158,7 @@ function calculateCumulativeHighLevel() {
             <p><strong>Side Effects:</strong></p>
             <p>${sideEffects}</p>
             <p><strong>Time until high level reaches 0:</strong> ${timeToZero} hours</p>
-            ${timeTo99_99 ? `<p><strong>Time until high level reaches 99.99:</strong> ${timeTo99_99} hours</p>` : ''}
+            ${timeTo99_99 ? `<p><strong>Time until high level reaches 100:</strong> ${timeTo99_99} hours</p>` : ''}
         </div>`;
 }
 
