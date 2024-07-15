@@ -1,3 +1,12 @@
+// Constants
+const lungCapacity = 6;  // Average lung capacity in liters
+const baselineTHC = 5;   // Baseline THC concentration in smoke (assuming no dilution)
+const standardTime = 5;  // Standard time in seconds
+const standardWeight = 70;  // Average weight in kg
+
+// Array to hold session data
+let sessions = [];
+
 // Function to add a new session
 function addSession() {
     // Fetch user inputs for the new session
@@ -58,10 +67,12 @@ function loadSessionsFromCookies() {
     });
 
     // Parse sessions JSON string to array
-    sessions = JSON.parse(sessionsJSON) || [];
+    if (sessionsJSON) {
+        sessions = JSON.parse(sessionsJSON) || [];
+    }
 }
 
-// Function to display sessions and calculate cumulative high level
+// Function to display sessions
 function displaySessions() {
     const sessionsContainer = document.getElementById('sessions');
     sessionsContainer.innerHTML = '';
@@ -74,7 +85,7 @@ function displaySessions() {
                 <h5 class="card-title">Session ${index + 1} - ${session.timestamp}</h5>
                 <ul class="list-unstyled">
                     <li><strong>Volume:</strong> ${session.volume} liters</li>
-                    <li><strong>THC Concentration:</strong> ${session.thcConcentration * 100}%</li>
+                    <li><strong>THC Concentration:</strong> ${(session.thcConcentration * 100).toFixed(2)}%</li>
                     <li><strong>Inhalation Time:</strong> ${session.inhalationTime} seconds</li>
                     <li><strong>Strain:</strong> ${session.strain}</li>
                     <li><strong>Frequency:</strong> ${session.frequency}</li>
@@ -90,7 +101,31 @@ function calculateCumulativeHighLevel() {
     let cumulativeHighLevel = 0;
 
     sessions.forEach(session => {
-        // Calculate high level for each session (similar to previous function)
+        // Calculate strain factor
+        let strainFactor;
+        if (session.strain === "sativa") {
+            strainFactor = 1.2;
+        } else if (session.strain === "indica") {
+            strainFactor = 1.0;
+        } else if (session.strain === "hybrid") {
+            strainFactor = 1.1;
+        } else {
+            strainFactor = 1.0; // Default value in case of unknown strain
+        }
+
+        // Calculate frequency factor
+        let frequencyFactor;
+        if (session.frequency === "daily") {
+            frequencyFactor = 1.5;
+        } else if (session.frequency === "weekly") {
+            frequencyFactor = 1.2;
+        } else if (session.frequency === "monthly") {
+            frequencyFactor = 1.0;
+        } else {
+            frequencyFactor = 1.0; // Default value in case of unknown frequency
+        }
+
+        // Calculate high level for each session
         let highLevel = (session.volume / lungCapacity)
                         * (session.thcConcentration / baselineTHC)
                         * (session.inhalationTime / standardTime)
@@ -112,6 +147,11 @@ function calculateCumulativeHighLevel() {
         <div class="alert alert-success" role="alert">
             <p>The estimated cumulative high level is: ${normalizedCumulativeHighLevel.toFixed(2)} out of 100</p>
         </div>`;
+}
+
+// Clear form inputs
+function clearFormInputs() {
+    document.getElementById('calculatorForm').reset();
 }
 
 // Load sessions from cookies on page load
