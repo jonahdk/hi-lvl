@@ -108,24 +108,23 @@ function displaySessions() {
 function calculateCumulativeHighLevel() {
     let cumulativeHighLevel = 0;
 
+    // Calculate cumulative high level
     sessions.forEach(session => {
-        // Calculate high level for each session (similar to previous function)
         const strainFactor = strainFactors[session.strain] || 1.0;
         const frequencyFactor = frequencyFactors[session.frequency] || 1.0;
-        let highLevel = (session.volume / lungCapacity)
-                        * (session.thcConcentration / baselineTHC)
-                        * (session.inhalationTime / standardTime)
-                        * strainFactor
-                        * (standardWeight / session.bodyWeight)
-                        * frequencyFactor;
-
-        highLevel *= 178.571425;
+        const highLevel = (session.volume / lungCapacity)
+                         * (session.thcConcentration / baselineTHC)
+                         * (session.inhalationTime / standardTime)
+                         * strainFactor
+                         * (standardWeight / session.bodyWeight)
+                         * frequencyFactor
+                         * 178.571425; // Assuming this is a multiplier for adjustment
 
         cumulativeHighLevel += highLevel;
     });
 
     // Normalize cumulative high level to 0-100 scale
-    let normalizedCumulativeHighLevel = (cumulativeHighLevel > 100) ? 100 : (cumulativeHighLevel / 100) * 100;
+    const normalizedCumulativeHighLevel = Math.min((cumulativeHighLevel / 100) * 100, 100);
 
     // Calculate time until high level reaches 0
     const timeToZero = (Math.log(1 / (normalizedCumulativeHighLevel / 100)) / -decayConstant).toFixed(2); // in hours
