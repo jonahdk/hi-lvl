@@ -2,9 +2,19 @@
 const lungCapacity = 6;  // Average lung capacity in liters
 const baselineTHC = 5;   // Baseline THC concentration in smoke (assuming no dilution)
 const standardTime = 5;  // Standard time in seconds
-const standardWeight = 70;  // Average weight in kg
+const decayConstant = Math.log(2) / 2;  // Half-life of THC is approximately 2 hours
+const strainFactors = {
+    sativa: 1.2,
+    indica: 1.0,
+    hybrid: 1.1
+};
+const frequencyFactors = {
+    daily: 1.5,
+    weekly: 1.2,
+    monthly: 1.0
+};
 
-// Array to hold session data
+// Global array to store sessions
 let sessions = [];
 
 // Function to add a new session
@@ -67,12 +77,10 @@ function loadSessionsFromCookies() {
     });
 
     // Parse sessions JSON string to array
-    if (sessionsJSON) {
-        sessions = JSON.parse(sessionsJSON) || [];
-    }
+    sessions = JSON.parse(sessionsJSON) || [];
 }
 
-// Function to display sessions
+// Function to display sessions and calculate cumulative high level
 function displaySessions() {
     const sessionsContainer = document.getElementById('sessions');
     sessionsContainer.innerHTML = '';
@@ -85,7 +93,7 @@ function displaySessions() {
                 <h5 class="card-title">Session ${index + 1} - ${session.timestamp}</h5>
                 <ul class="list-unstyled">
                     <li><strong>Volume:</strong> ${session.volume} liters</li>
-                    <li><strong>THC Concentration:</strong> ${(session.thcConcentration * 100).toFixed(2)}%</li>
+                    <li><strong>THC Concentration:</strong> ${session.thcConcentration * 100}%</li>
                     <li><strong>Inhalation Time:</strong> ${session.inhalationTime} seconds</li>
                     <li><strong>Strain:</strong> ${session.strain}</li>
                     <li><strong>Frequency:</strong> ${session.frequency}</li>
@@ -101,31 +109,9 @@ function calculateCumulativeHighLevel() {
     let cumulativeHighLevel = 0;
 
     sessions.forEach(session => {
-        // Calculate strain factor
-        let strainFactor;
-        if (session.strain === "sativa") {
-            strainFactor = 1.2;
-        } else if (session.strain === "indica") {
-            strainFactor = 1.0;
-        } else if (session.strain === "hybrid") {
-            strainFactor = 1.1;
-        } else {
-            strainFactor = 1.0; // Default value in case of unknown strain
-        }
-
-        // Calculate frequency factor
-        let frequencyFactor;
-        if (session.frequency === "daily") {
-            frequencyFactor = 1.5;
-        } else if (session.frequency === "weekly") {
-            frequencyFactor = 1.2;
-        } else if (session.frequency === "monthly") {
-            frequencyFactor = 1.0;
-        } else {
-            frequencyFactor = 1.0; // Default value in case of unknown frequency
-        }
-
-        // Calculate high level for each session
+        // Calculate high level for each session (similar to previous function)
+        const strainFactor = strainFactors[session.strain] || 1.0;
+        const frequencyFactor = frequencyFactors[session.frequency] || 1.0;
         let highLevel = (session.volume / lungCapacity)
                         * (session.thcConcentration / baselineTHC)
                         * (session.inhalationTime / standardTime)
@@ -139,17 +125,44 @@ function calculateCumulativeHighLevel() {
     });
 
     // Normalize cumulative high level to 0-100 scale
-    const normalizedCumulativeHighLevel = (cumulativeHighLevel > 100) ? 100 : (cumulativeHighLevel / 100) * 100;
+    let normalizedCumulativeHighLevel = (cumulativeHighLevel > 100) ? 100 : (cumulativeHighLevel / 100) * 100;
+
+    // Calculate time until high level reaches 0
+    const timeToZero = (Math.log(1 / (normalizedCumulativeHighLevel / 100)) / -decayConstant).toFixed(2); // in hours
+
+    // Calculate time until high level reaches 99.99 if score is 100
+    let timeTo99_99 = '';
+    if (normalizedCumulativeHighLevel === 100) {
+        timeTo99_99 = (Math.log(100 / 99.99) / decayConstant).toFixed(2); // in hours
+    }
+
+    // Determine side effects based on normalized cumulative high level
+    let sideEffects = "";
+    if (normalizedCumulativeHighLevel >= 0 && normalizedCumulativeHighLevel <= 10) {
+        sideEffects = "Mild to moderate effects. Users may feel slightly relaxed, increased appetite, dry mouth.";
+    } else if (normalizedCumulativeHighLevel > 10 && normalizedCumulativeHighLevel <= 30) {
+        sideEffects = "Moderate to moderately high effects. Users may experience euphoria, altered perception of time, increased heart rate.";
+    } else if (normalizedCumulativeHighLevel > 30 && normalizedCumulativeHighLevel <= 50) {
+        sideEffects = "High effects. Pronounced euphoria, impaired short-term memory, increased sensory perception.";
+    } else if (normalizedCumulativeHighLevel > 50 && normalizedCumulativeHighLevel <= 70) {
+        sideEffects = "Very high effects. Intense euphoria, hallucinations, impaired motor coordination, heightened sensitivity to light and sound.";
+    } else if (normalizedCumulativeHighLevel > 70 && normalizedCumulativeHighLevel <= 100) {
+        sideEffects = "Extremely high effects. Overwhelming euphoria, paranoia, intense hallucinations, significant impairment of motor skills, sedation.";
+    }
 
     // Display result
     const resultElement = document.getElementById('result');
     resultElement.innerHTML = `
         <div class="alert alert-success" role="alert">
             <p>The estimated cumulative high level is: ${normalizedCumulativeHighLevel.toFixed(2)} out of 100</p>
+            <p><strong>Side Effects:</strong></p>
+            <p>${sideEffects}</p>
+            <p><strong>Time until high level reaches 0:</strong> ${timeToZero} hours</p>
+            ${timeTo99_99 ? `<p><strong>Time until high level reaches 99.99:</strong> ${timeTo99_99} hours</p>` : ''}
         </div>`;
 }
 
-// Clear form inputs
+// Function to clear form inputs
 function clearFormInputs() {
     document.getElementById('calculatorForm').reset();
 }
