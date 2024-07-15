@@ -14,12 +14,33 @@ function calculateHighLevel() {
     const bodyWeight = parseFloat(document.getElementById('bodyWeight').value);
     const timeSinceSmoking = parseFloat(document.getElementById('timeSinceSmoking').value);
 
-    // Validate inputs (optional)
-
     // Convert THC concentration from percentage to decimal
     const thcConcentration = thcConcentrationPercentage / 100.0;
 
-    // Validate strain and frequency (similar validation as before)
+    // Validate strain and frequency
+    let strainFactor;
+    if (strain === "sativa") {
+        strainFactor = 1.2;
+    } else if (strain === "indica") {
+        strainFactor = 1.0;
+    } else if (strain === "hybrid") {
+        strainFactor = 1.1;
+    } else {
+        alert("Invalid strain type. Please enter 'sativa', 'indica', or 'hybrid'.");
+        return;
+    }
+
+    let frequencyFactor;
+    if (frequency === "daily") {
+        frequencyFactor = 1.5;
+    } else if (frequency === "weekly") {
+        frequencyFactor = 1.2;
+    } else if (frequency === "monthly") {
+        frequencyFactor = 1.0;
+    } else {
+        alert("Invalid frequency type. Please enter 'daily', 'weekly', or 'monthly'.");
+        return;
+    }
 
     // Calculate weight ratio
     const standardWeight = 70;  // Average weight in kg
