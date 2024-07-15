@@ -20,11 +20,11 @@ function calculateHighLevel() {
     // Validate strain and frequency
     let strainFactor;
     if (strain === "sativa") {
-        strainFactor = 1.2;
-    } else if (strain === "indica") {
         strainFactor = 1.0;
+    } else if (strain === "indica") {
+        strainFactor = 2.0;
     } else if (strain === "hybrid") {
-        strainFactor = 1.1;
+        strainFactor = 1.5;
     } else {
         alert("Invalid strain type. Please enter 'sativa', 'indica', or 'hybrid'.");
         return;
