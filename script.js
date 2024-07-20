@@ -128,6 +128,7 @@ function calculateCumulativeHighLevel() {
     sessions.forEach(session => {
         const strainFactor = strainFactors[session.strain] || 1.0;
         const frequencyFactor = frequencyFactors[session.frequency] || 1.0;
+        const standardWeight = 70;
         const highLevel = (session.volume / lungCapacity)
                           * (session.thcConcentration / baselineTHC)
                           * (session.inhalationTime / standardTime)
