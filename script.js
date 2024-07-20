@@ -215,6 +215,8 @@ function clearFormInputs() {
 document.addEventListener('DOMContentLoaded', () => {
     loadSessionsFromCookies();
     displaySessions();
+
+    // Check if frequency and body weight are in cookies
     if (!savedFrequency || !savedBodyWeight) {
         // Show frequency and body weight fields if not saved in cookies
         document.getElementById('frequencyContainer').classList.remove('d-none');
@@ -224,5 +226,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('frequency').value = savedFrequency;
         document.getElementById('bodyWeight').value = savedBodyWeight;
     }
+
     calculateCumulativeHighLevel();
 });
