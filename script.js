@@ -18,9 +18,12 @@ const volumeValues = {
     medium: 12.6,
     large: 18.9
 };
+const cookieExpirationHours = 24;
 
 // Global array to store sessions
 let sessions = [];
+let savedFrequency = '';
+let savedBodyWeight = '';
 
 // Function to update volume based on selection
 function updateVolume() {
@@ -50,6 +53,10 @@ function addSession() {
     const strain = document.getElementById('strain').value.toLowerCase();
     const frequency = document.getElementById('frequency').value.toLowerCase();
     const bodyWeight = parseFloat(document.getElementById('bodyWeight').value);
+
+    // Save body weight and frequency to cookies
+    document.cookie = `thc_frequency=${frequency}; max-age=${cookieExpirationHours * 3600}; path=/`;
+    document.cookie = `thc_bodyWeight=${bodyWeight}; max-age=${cookieExpirationHours * 3600}; path=/`;
 
     // Calculate THC concentration in decimal form
     const thcConcentration = thcConcentrationPercentage / 100.0;
@@ -85,23 +92,39 @@ function saveSessionsToCookies() {
     const sessionsJSON = JSON.stringify(sessions);
 
     // Set sessions JSON string as cookie
-    document.cookie = `thc_sessions=${sessionsJSON}; path=/`; // Use a specific cookie name ('thc_sessions') for clarity
+    document.cookie = `thc_sessions=${sessionsJSON}; max-age=${cookieExpirationHours * 3600}; path=/`; // Use a specific cookie name ('thc_sessions') for clarity
 }
 
 // Function to load sessions from cookies
 function loadSessionsFromCookies() {
     const cookies = document.cookie.split(';');
     let sessionsJSON = '';
+    let frequency = '';
+    let bodyWeight = '';
 
     // Find the cookie containing session data
     cookies.forEach(cookie => {
         if (cookie.trim().startsWith('thc_sessions=')) {
             sessionsJSON = cookie.trim().substring('thc_sessions='.length);
         }
+        if (cookie.trim().startsWith('thc_frequency=')) {
+            frequency = cookie.trim().substring('thc_frequency='.length);
+        }
+        if (cookie.trim().startsWith('thc_bodyWeight=')) {
+            bodyWeight = cookie.trim().substring('thc_bodyWeight='.length);
+        }
     });
 
     // Parse sessions JSON string to array
     sessions = JSON.parse(sessionsJSON) || [];
+    savedFrequency = frequency || '';
+    savedBodyWeight = bodyWeight || '';
+
+    // Populate form if no frequency or body weight is saved
+    if (!savedFrequency || !savedBodyWeight) {
+        document.getElementById('frequency').value = savedFrequency;
+        document.getElementById('bodyWeight').value = savedBodyWeight;
+    }
 }
 
 // Function to display sessions and calculate cumulative high level
@@ -183,7 +206,7 @@ function calculateCumulativeHighLevel() {
             <p><strong>Time until high level reaches 0:</strong> ${timeToZero} hours</p>
             ${timeTo99_99 ? `<p><strong>Time until high level reaches 100:</strong> ${timeTo99_99} hours</p>` : ''}
         </div>`;
-}
+    }
 
 // Function to clear form inputs
 function clearFormInputs() {
