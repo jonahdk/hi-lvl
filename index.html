@@ -27,30 +27,39 @@
                 <input type="number" class="form-control" id="customVolume" name="customVolume" step="0.1" min="0" placeholder="Enter custom volume">
             </div>
 
-            <!-- Other form fields -->
             <div class="form-group">
-                <label for="thcConcentration">THC Concentration in Vape Liquid (in percentage):</label>
-                <input type="number" class="form-control" id="thcConcentration" name="thcConcentration" step="0.1" min="0" max="100" required>
+                <label for="thcConcentration">THC Concentration in Smoke (in percentage):</label>
+                <input type="number" class="form-control" id="thcConcentration" name="thcConcentration" step="0.1" min="0" max="100" placeholder="Enter THC concentration" required>
             </div>
 
             <div class="form-group">
                 <label for="inhalationTime">Inhalation Time (in seconds):</label>
-                <input type="number" class="form-control" id="inhalationTime" name="inhalationTime" required>
+                <input type="number" class="form-control" id="inhalationTime" name="inhalationTime" placeholder="Enter inhalation time" required>
             </div>
 
-            <div class="form-group d-none" id="strainContainer">
-                <label for="strain">Type of Strain (sativa, indica, hybrid):</label>
-                <input type="text" class="form-control" id="strain" name="strain" required>
+            <div class="form-group">
+                <label for="strain">Type of Strain:</label>
+                <select class="form-control" id="strain" name="strain" required>
+                    <option value="" disabled selected>Select strain type</option>
+                    <option value="sativa">Sativa</option>
+                    <option value="indica">Indica</option>
+                    <option value="hybrid">Hybrid</option>
+                </select>
             </div>
 
-            <div class="form-group d-none" id="frequencyContainer">
-                <label for="frequency">Frequency of Use (daily, weekly, monthly):</label>
-                <input type="text" class="form-control" id="frequency" name="frequency" required>
+            <div class="form-group">
+                <label for="frequency">Frequency of Use:</label>
+                <select class="form-control" id="frequency" name="frequency" required>
+                    <option value="" disabled selected>Select frequency</option>
+                    <option value="daily">Daily</option>
+                    <option value="weekly">Weekly</option>
+                    <option value="monthly">Monthly</option>
+                </select>
             </div>
 
-            <div class="form-group d-none" id="bodyWeightContainer">
+            <div class="form-group">
                 <label for="bodyWeight">Body Weight (in kg):</label>
-                <input type="number" class="form-control" id="bodyWeight" name="bodyWeight" step="0.1" required>
+                <input type="number" class="form-control" id="bodyWeight" name="bodyWeight" step="0.1" placeholder="Enter body weight" required>
             </div>
 
             <button type="button" class="btn btn-primary btn-block" onclick="addSession()">Add Session</button>
