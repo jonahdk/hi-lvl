@@ -9,16 +9,15 @@ const strainFactors = {
     hybrid: 1.5
 };
 const frequencyFactors = {
-    daily: 1.0,
-    weekly: 1.5,
-    monthly: 2.0
+    daily: 1.5,
+    weekly: 1.2,
+    monthly: 1.0
 };
 const volumeValues = {
     small: 6.3,
     medium: 12.6,
     large: 18.9
 };
-const cookieExpirationHours = 24;
 
 // Global array to store sessions
 let sessions = [];
@@ -54,10 +53,6 @@ function addSession() {
     const frequency = document.getElementById('frequency').value.toLowerCase();
     const bodyWeight = parseFloat(document.getElementById('bodyWeight').value);
 
-    // Save body weight and frequency to cookies
-    document.cookie = `thc_frequency=${frequency}; max-age=${cookieExpirationHours * 3600}; path=/`;
-    document.cookie = `thc_bodyWeight=${bodyWeight}; max-age=${cookieExpirationHours * 3600}; path=/`;
-
     // Calculate THC concentration in decimal form
     const thcConcentration = thcConcentrationPercentage / 100.0;
 
@@ -75,7 +70,7 @@ function addSession() {
     // Add session to array
     sessions.push(session);
 
-    // Save sessions to cookies
+    // Save sessions and other data to cookies
     saveSessionsToCookies();
 
     // Clear form inputs (optional)
@@ -86,45 +81,46 @@ function addSession() {
     calculateCumulativeHighLevel();
 }
 
-// Function to save sessions to cookies
+// Function to save sessions and other data to cookies
 function saveSessionsToCookies() {
     // Convert sessions array to JSON string
     const sessionsJSON = JSON.stringify(sessions);
 
-    // Set sessions JSON string as cookie
-    document.cookie = `thc_sessions=${sessionsJSON}; max-age=${cookieExpirationHours * 3600}; path=/`; // Use a specific cookie name ('thc_sessions') for clarity
+    // Set sessions JSON string as cookie with a 24-hour expiry
+    const expiryDate = new Date();
+    expiryDate.setTime(expiryDate.getTime() + (24 * 60 * 60 * 1000)); // 24 hours from now
+    document.cookie = `thc_sessions=${sessionsJSON}; expires=${expiryDate.toUTCString()}; path=/`;
+
+    // Save frequency and body weight to cookies if not already set
+    if (savedFrequency) {
+        document.cookie = `thc_frequency=${encodeURIComponent(savedFrequency)}; expires=${expiryDate.toUTCString()}; path=/`;
+    }
+    if (savedBodyWeight) {
+        document.cookie = `thc_body_weight=${encodeURIComponent(savedBodyWeight)}; expires=${expiryDate.toUTCString()}; path=/`;
+    }
 }
 
 // Function to load sessions from cookies
 function loadSessionsFromCookies() {
     const cookies = document.cookie.split(';');
     let sessionsJSON = '';
-    let frequency = '';
-    let bodyWeight = '';
 
     // Find the cookie containing session data
     cookies.forEach(cookie => {
         if (cookie.trim().startsWith('thc_sessions=')) {
             sessionsJSON = cookie.trim().substring('thc_sessions='.length);
         }
-        if (cookie.trim().startsWith('thc_frequency=')) {
-            frequency = cookie.trim().substring('thc_frequency='.length);
-        }
-        if (cookie.trim().startsWith('thc_bodyWeight=')) {
-            bodyWeight = cookie.trim().substring('thc_bodyWeight='.length);
-        }
     });
 
     // Parse sessions JSON string to array
     sessions = JSON.parse(sessionsJSON) || [];
-    savedFrequency = frequency || '';
-    savedBodyWeight = bodyWeight || '';
-
-    // Populate form if no frequency or body weight is saved
-    if (!savedFrequency || !savedBodyWeight) {
-        document.getElementById('frequency').value = savedFrequency;
-        document.getElementById('bodyWeight').value = savedBodyWeight;
-    }
+    
+    // Extract frequency and body weight if available
+    const frequencyMatch = document.cookie.match(/thc_frequency=([^;]*)/);
+    const bodyWeightMatch = document.cookie.match(/thc_body_weight=([^;]*)/);
+    
+    savedFrequency = frequencyMatch ? decodeURIComponent(frequencyMatch[1]) : '';
+    savedBodyWeight = bodyWeightMatch ? decodeURIComponent(bodyWeightMatch[1]) : '';
 }
 
 // Function to display sessions and calculate cumulative high level
@@ -163,7 +159,7 @@ function calculateCumulativeHighLevel() {
                          * (session.thcConcentration / baselineTHC)
                          * (session.inhalationTime / standardTime)
                          * strainFactor
-                         * (standardWeight / session.bodyWeight)
+                         * (standardBodyWeight / session.bodyWeight)
                          * frequencyFactor
                          * 178.571425; // Assuming this is a multiplier for adjustment
 
@@ -196,7 +192,8 @@ function calculateCumulativeHighLevel() {
         sideEffects = "Extremely high effects. Overwhelming euphoria, paranoia, intense hallucinations, significant impairment of motor skills, sedation.";
     }
 
-    // Display result
+// Display result
+function displayResult() {
     const resultElement = document.getElementById('result');
     resultElement.innerHTML = `
         <div class="alert alert-success" role="alert">
@@ -204,9 +201,9 @@ function calculateCumulativeHighLevel() {
             <p><strong>Side Effects:</strong></p>
             <p>${sideEffects}</p>
             <p><strong>Time until high level reaches 0:</strong> ${timeToZero} hours</p>
-            ${timeTo99_99 ? `<p><strong>Time until high level reaches 100:</strong> ${timeTo99_99} hours</p>` : ''}
+            ${timeTo99_99 ? `<p><strong>Time until high level reaches 99.99:</strong> ${timeTo99_99} hours</p>` : ''}
         </div>`;
-    }
+}
 
 // Function to clear form inputs
 function clearFormInputs() {
@@ -218,5 +215,14 @@ function clearFormInputs() {
 document.addEventListener('DOMContentLoaded', () => {
     loadSessionsFromCookies();
     displaySessions();
+    if (!savedFrequency || !savedBodyWeight) {
+        // Show frequency and body weight fields if not saved in cookies
+        document.getElementById('frequencyContainer').classList.remove('d-none');
+        document.getElementById('bodyWeightContainer').classList.remove('d-none');
+    } else {
+        // Fill frequency and body weight fields from cookies
+        document.getElementById('frequency').value = savedFrequency;
+        document.getElementById('bodyWeight').value = savedBodyWeight;
+    }
     calculateCumulativeHighLevel();
 });
