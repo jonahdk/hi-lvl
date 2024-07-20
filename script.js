@@ -114,13 +114,21 @@ function loadSessionsFromCookies() {
 
     // Parse sessions JSON string to array
     sessions = JSON.parse(sessionsJSON) || [];
-    
+
     // Extract frequency and body weight if available
     const frequencyMatch = document.cookie.match(/thc_frequency=([^;]*)/);
     const bodyWeightMatch = document.cookie.match(/thc_body_weight=([^;]*)/);
-    
+
     savedFrequency = frequencyMatch ? decodeURIComponent(frequencyMatch[1]) : '';
     savedBodyWeight = bodyWeightMatch ? decodeURIComponent(bodyWeightMatch[1]) : '';
+
+    // Show frequency and body weight fields if not saved in cookies
+    if (!savedFrequency) {
+        document.getElementById('frequencyContainer').classList.remove('d-none');
+    }
+    if (!savedBodyWeight) {
+        document.getElementById('bodyWeightContainer').classList.remove('d-none');
+    }
 }
 
 // Function to display sessions and calculate cumulative high level
