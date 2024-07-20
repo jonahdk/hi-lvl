@@ -221,14 +221,14 @@ document.addEventListener('DOMContentLoaded', () => {
     displaySessions();
 
     // Check if frequency and body weight are in cookies
-    if (!savedFrequency || !savedBodyWeight) {
-        // Show frequency and body weight fields if not saved in cookies
-        document.getElementById('frequencyContainer').classList.remove('d-none');
-        document.getElementById('bodyWeightContainer').classList.remove('d-none');
-    } else {
+    if (savedFrequency && savedBodyWeight) {
         // Fill frequency and body weight fields from cookies
         document.getElementById('frequency').value = savedFrequency;
         document.getElementById('bodyWeight').value = savedBodyWeight;
+    } else {
+        // Show frequency and body weight fields if not saved in cookies
+        document.getElementById('frequencyContainer').classList.remove('d-none');
+        document.getElementById('bodyWeightContainer').classList.remove('d-none');
     }
 
     calculateCumulativeHighLevel();
