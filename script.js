@@ -149,48 +149,55 @@ function displaySessions() {
 
 // Function to calculate cumulative high level based on all sessions
 function calculateCumulativeHighLevel() {
+    const standardBodyWeight = 70; // Define standard body weight in kg
     let cumulativeHighLevel = 0;
 
-    // Calculate cumulative high level
     sessions.forEach(session => {
         const strainFactor = strainFactors[session.strain] || 1.0;
         const frequencyFactor = frequencyFactors[session.frequency] || 1.0;
+        const thcConcentrationRatio = session.thcConcentration / baselineTHC;
+
+        if (thcConcentrationRatio <= 0 || session.bodyWeight <= 0) {
+            console.error("Invalid THC concentration or body weight.");
+            return;
+        }
+
         const highLevel = (session.volume / lungCapacity)
-                         * (session.thcConcentration / baselineTHC)
+                         * thcConcentrationRatio
                          * (session.inhalationTime / standardTime)
                          * strainFactor
                          * (standardBodyWeight / session.bodyWeight)
                          * frequencyFactor
-                         * 178.571425; // Assuming this is a multiplier for adjustment
+                         * 178.571425;
 
         cumulativeHighLevel += highLevel;
     });
 
-    // Normalize cumulative high level to 0-100 scale
     const normalizedCumulativeHighLevel = Math.min((cumulativeHighLevel / 100) * 100, 100);
 
-    // Calculate time until high level reaches 0
     const timeToZero = (Math.log(1 / (normalizedCumulativeHighLevel / 100)) / -decayConstant).toFixed(2); // in hours
 
-    // Calculate time until high level reaches 99.99 if score is 100
     let timeTo99_99 = '';
     if (normalizedCumulativeHighLevel === 100) {
         timeTo99_99 = (Math.log(100 / 99.99) / decayConstant).toFixed(2); // in hours
     }
 
-    // Determine side effects based on normalized cumulative high level
     let sideEffects = "";
-    if (normalizedCumulativeHighLevel >= 0 && normalizedCumulativeHighLevel <= 10) {
+    if (normalizedCumulativeHighLevel <= 10) {
         sideEffects = "Mild to moderate effects. Users may feel slightly relaxed, increased appetite, dry mouth.";
-    } else if (normalizedCumulativeHighLevel > 10 && normalizedCumulativeHighLevel <= 30) {
+    } else if (normalizedCumulativeHighLevel <= 30) {
         sideEffects = "Moderate to moderately high effects. Users may experience euphoria, altered perception of time, increased heart rate.";
-    } else if (normalizedCumulativeHighLevel > 30 && normalizedCumulativeHighLevel <= 50) {
+    } else if (normalizedCumulativeHighLevel <= 50) {
         sideEffects = "High effects. Pronounced euphoria, impaired short-term memory, increased sensory perception.";
-    } else if (normalizedCumulativeHighLevel > 50 && normalizedCumulativeHighLevel <= 70) {
+    } else if (normalizedCumulativeHighLevel <= 70) {
         sideEffects = "Very high effects. Intense euphoria, hallucinations, impaired motor coordination, heightened sensitivity to light and sound.";
-    } else if (normalizedCumulativeHighLevel > 70 && normalizedCumulativeHighLevel <= 100) {
+    } else {
         sideEffects = "Extremely high effects. Overwhelming euphoria, paranoia, intense hallucinations, significant impairment of motor skills, sedation.";
     }
+
+    displayResult(normalizedCumulativeHighLevel, sideEffects, timeToZero, timeTo99_99);
+}
+
 
 // Display result
 function displayResult() {
