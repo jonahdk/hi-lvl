@@ -12,19 +12,22 @@
         <h1 class="text-center mb-4">THC High Level Calculator</h1>
         <form id="calculatorForm">
             <div class="form-group">
-                <label for="volume">Volume of Smoke Inhaled:</label>
-                <select class="form-control" id="volumeSelect" onchange="updateVolume()">
-                    <option value="custom">Custom</option>
+                <label for="volumeSelect">Volume of Smoke Inhaled:</label>
+                <select class="form-control" id="volumeSelect" name="volumeSelect" onchange="updateVolume()" required>
+                    <option value="" disabled selected>Select an option</option>
                     <option value="small">Small (6.3 liters)</option>
                     <option value="medium">Medium (12.6 liters)</option>
                     <option value="large">Large (18.9 liters)</option>
+                    <option value="custom">Custom</option>
                 </select>
-                <div id="customVolumeContainer" class="mt-2 d-none">
-                    <label for="customVolume">Enter Custom Volume (in liters):</label>
-                    <input type="number" class="form-control" id="customVolume" name="customVolume" step="0.1">
-                </div>
             </div>
 
+            <div class="form-group d-none" id="customVolumeContainer">
+                <label for="customVolume">Custom Volume (in liters):</label>
+                <input type="number" class="form-control" id="customVolume" name="customVolume" step="0.1" min="0" placeholder="Enter custom volume">
+            </div>
+
+            <!-- Other form fields remain unchanged -->
             <div class="form-group">
                 <label for="thcConcentration">THC Concentration in Vape Liquid (in percentage):</label>
                 <input type="number" class="form-control" id="thcConcentration" name="thcConcentration" step="0.1" min="0" max="100" required>
