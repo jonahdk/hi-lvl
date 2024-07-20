@@ -13,14 +13,38 @@ const frequencyFactors = {
     weekly: 1.2,
     monthly: 1.0
 };
+const volumeValues = {
+    small: 6.3,
+    medium: 12.6,
+    large: 18.9
+};
 
 // Global array to store sessions
 let sessions = [];
 
+// Function to update volume based on selection
+function updateVolume() {
+    const volumeSelect = document.getElementById('volumeSelect');
+    const customVolumeContainer = document.getElementById('customVolumeContainer');
+    const customVolumeInput = document.getElementById('customVolume');
+    
+    if (volumeSelect.value === 'custom') {
+        customVolumeContainer.classList.remove('d-none');
+        customVolumeInput.required = true;
+    } else {
+        customVolumeContainer.classList.add('d-none');
+        customVolumeInput.required = false;
+        customVolumeInput.value = '';
+    }
+}
+
 // Function to add a new session
 function addSession() {
     // Fetch user inputs for the new session
-    const volume = parseFloat(document.getElementById('volume').value);
+    const volumeSelect = document.getElementById('volumeSelect').value;
+    const volume = volumeSelect === 'custom'
+        ? parseFloat(document.getElementById('customVolume').value)
+        : volumeValues[volumeSelect];
     const thcConcentrationPercentage = parseFloat(document.getElementById('thcConcentration').value);
     const inhalationTime = parseFloat(document.getElementById('inhalationTime').value);
     const strain = document.getElementById('strain').value.toLowerCase();
@@ -164,6 +188,7 @@ function calculateCumulativeHighLevel() {
 // Function to clear form inputs
 function clearFormInputs() {
     document.getElementById('calculatorForm').reset();
+    updateVolume(); // Reset volume select
 }
 
 // Load sessions from cookies on page load
