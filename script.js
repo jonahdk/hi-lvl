@@ -188,7 +188,7 @@ function calculateCumulativeHighLevel() {
 // Function to clear form inputs
 function clearFormInputs() {
     document.getElementById('calculatorForm').reset();
-    updateVolume(); // Reset volume select
+    updateVolume(); // Reset volume field visibility
 }
 
 // Load sessions from cookies on page load
