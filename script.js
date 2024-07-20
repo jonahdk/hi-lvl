@@ -9,9 +9,9 @@ const strainFactors = {
     hybrid: 1.5
 };
 const frequencyFactors = {
-    daily: 1.5,
-    weekly: 1.2,
-    monthly: 1.0
+    daily: 1.0,
+    weekly: 1.5,
+    monthly: 2.0
 };
 const volumeValues = {
     small: 6.3,
