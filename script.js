@@ -114,21 +114,14 @@ function loadSessionsFromCookies() {
 
     // Parse sessions JSON string to array
     sessions = JSON.parse(sessionsJSON) || [];
-
+    
     // Extract frequency and body weight if available
     const frequencyMatch = document.cookie.match(/thc_frequency=([^;]*)/);
     const bodyWeightMatch = document.cookie.match(/thc_body_weight=([^;]*)/);
-
+    
     savedFrequency = frequencyMatch ? decodeURIComponent(frequencyMatch[1]) : '';
     savedBodyWeight = bodyWeightMatch ? decodeURIComponent(bodyWeightMatch[1]) : '';
-
-    // Hide frequency and body weight fields if cookies are present
-    if (frequencyMatch || bodyWeightMatch) {
-        document.getElementById('frequencyContainer').classList.add('d-none');
-        document.getElementById('bodyWeightContainer').classList.add('d-none');
-    }
 }
-
 
 // Function to display sessions and calculate cumulative high level
 function displaySessions() {
@@ -227,8 +220,11 @@ document.addEventListener('DOMContentLoaded', () => {
     loadSessionsFromCookies();
     displaySessions();
 
-    // Check if frequency and body weight are in cookies
+    // Hide frequency and body weight fields if cookies are present
     if (savedFrequency && savedBodyWeight) {
+        document.getElementById('frequencyContainer').classList.add('d-none');
+        document.getElementById('bodyWeightContainer').classList.add('d-none');
+
         // Fill frequency and body weight fields from cookies
         document.getElementById('frequency').value = savedFrequency;
         document.getElementById('bodyWeight').value = savedBodyWeight;
@@ -236,11 +232,6 @@ document.addEventListener('DOMContentLoaded', () => {
         // Show frequency and body weight fields if not saved in cookies
         document.getElementById('frequencyContainer').classList.remove('d-none');
         document.getElementById('bodyWeightContainer').classList.remove('d-none');
-    }
-
-    // Fill body weight field with saved value from cookies
-    if (savedBodyWeight) {
-        document.getElementById('bodyWeight').value = savedBodyWeight;
     }
 
     calculateCumulativeHighLevel();
