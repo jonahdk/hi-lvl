@@ -122,14 +122,13 @@ function loadSessionsFromCookies() {
     savedFrequency = frequencyMatch ? decodeURIComponent(frequencyMatch[1]) : '';
     savedBodyWeight = bodyWeightMatch ? decodeURIComponent(bodyWeightMatch[1]) : '';
 
-    // Show frequency and body weight fields if not saved in cookies
-    if (!savedFrequency) {
-        document.getElementById('frequencyContainer').classList.remove('d-none');
-    }
-    if (!savedBodyWeight) {
-        document.getElementById('bodyWeightContainer').classList.remove('d-none');
+    // Hide frequency and body weight fields if cookies are present
+    if (frequencyMatch || bodyWeightMatch) {
+        document.getElementById('frequencyContainer').classList.add('d-none');
+        document.getElementById('bodyWeightContainer').classList.add('d-none');
     }
 }
+
 
 // Function to display sessions and calculate cumulative high level
 function displaySessions() {
