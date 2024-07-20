@@ -231,5 +231,10 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('bodyWeightContainer').classList.remove('d-none');
     }
 
+    // Fill body weight field with saved value from cookies
+    if (savedBodyWeight) {
+        document.getElementById('bodyWeight').value = savedBodyWeight;
+    }
+
     calculateCumulativeHighLevel();
 });
