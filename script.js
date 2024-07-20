@@ -176,11 +176,9 @@ function calculateCumulativeHighLevel() {
     const normalizedCumulativeHighLevel = Math.min((cumulativeHighLevel / 100) * 100, 100);
 
     const timeToZero = (Math.log(1 / (normalizedCumulativeHighLevel / 100)) / -decayConstant).toFixed(2); // in hours
-
-    let timeTo99_99 = '';
-    if (normalizedCumulativeHighLevel === 100) {
-        timeTo99_99 = (Math.log(100 / 99.99) / decayConstant).toFixed(2); // in hours
-    }
+    const timeTo99_99 = normalizedCumulativeHighLevel === 100
+        ? (Math.log(100 / 99.99) / decayConstant).toFixed(2) // in hours
+        : '';
 
     let sideEffects = "";
     if (normalizedCumulativeHighLevel <= 10) {
@@ -198,9 +196,8 @@ function calculateCumulativeHighLevel() {
     displayResult(normalizedCumulativeHighLevel, sideEffects, timeToZero, timeTo99_99);
 }
 
-
 // Display result
-function displayResult() {
+function displayResult(normalizedCumulativeHighLevel, sideEffects, timeToZero, timeTo99_99) {
     const resultElement = document.getElementById('result');
     resultElement.innerHTML = `
         <div class="alert alert-success" role="alert">
