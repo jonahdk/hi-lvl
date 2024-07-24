@@ -1,3 +1,6 @@
+// LAST UPDATED: JULY 24 2024 AT 12:30 PM
+
+
 // Constants
 const lungCapacity = 6;  // Average lung capacity in liters
 const baselineTHC = 5;   // Baseline THC concentration in smoke (assuming no dilution)
