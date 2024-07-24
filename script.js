@@ -190,16 +190,30 @@ function displayResult(cumulativeHighLevel) {
 
 // Function to calculate the decay effect on the high level
 function calculateDecayEffect(initialHighLevel) {
-    // Calculate time until high level reaches 0 due to decay
-    const timeToZero = (Math.log(1 / (initialHighLevel / 100)) / -decayConstant).toFixed(2); // in hours
+    const startTime = new Date(sessions[0].timestamp); // Assuming sessions are sorted, take the earliest timestamp
+    const currentTime = new Date();
+    const elapsedTime = (currentTime - startTime) / (1000 * 60 * 60); // Time in hours
+
+    const decayedHighLevel = initialHighLevel * Math.exp(-decayConstant * elapsedTime);
 
     // Update the result element with decay information
     const resultElement = document.getElementById('result');
     resultElement.innerHTML += `
-        <div class="alert alert-info mt-3" role="alert">
+        <div class="alert alert-info mt-3" role="alert" id="decayAlert">
+            <button type="button" class="close" aria-label="Close" onclick="closeDecayAlert()">
+                <span aria-hidden="true">&times;</span>
+            </button>
             <p><strong>Decay Calculation:</strong></p>
-            <p>Time until high level reaches 0: ${timeToZero} hours</p>
+            <p>The decayed cumulative high level is: ${decayedHighLevel.toFixed(2)}</p>
         </div>`;
+}
+
+// Function to close the decay alert
+function closeDecayAlert() {
+    const decayAlert = document.getElementById('decayAlert');
+    if (decayAlert) {
+        decayAlert.remove();
+    }
 }
 
 // Function to clear form inputs
