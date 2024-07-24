@@ -1,4 +1,4 @@
-// LAST UPDATED: JULY 24 2024 AT 12:30 PM
+// LAST UPDATED: JULY 24 2024 AT 3:20 PM
 
 
 // Constants
@@ -197,7 +197,11 @@ function calculateDecayEffect(initialHighLevel) {
     const currentTime = new Date();
     const elapsedTime = (currentTime - startTime) / (1000 * 60 * 60); // Time in hours
 
-    const decayedHighLevel = initialHighLevel * Math.exp(-decayConstant * elapsedTime);
+    // Calculate the number of half-lives elapsed
+    const halfLivesElapsed = elapsedTime / 2;
+
+    // Calculate the decayed high level using the formula: initialHighLevel * (1/2) ^ halfLivesElapsed
+    const decayedHighLevel = initialHighLevel * Math.pow(0.5, halfLivesElapsed);
 
     // Update the result element with decay information
     const resultElement = document.getElementById('result');
