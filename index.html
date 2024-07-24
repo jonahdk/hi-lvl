@@ -12,6 +12,14 @@
         <h1 class="text-center mb-4">THC High Level Calculator</h1>
         <form id="calculatorForm">
             <div class="form-group">
+                <label for="measurementMethod">Measurement Method:</label>
+                <select class="form-control" id="measurementMethod" name="measurementMethod" onchange="toggleMeasurementFields()" required>
+                    <option value="litersSeconds">Liters and Seconds</option>
+                    <option value="blinkers">Blinkers</option>
+                </select>
+            </div>
+
+            <div id="litersSecondsFields" class="form-group">
                 <label for="volume">Volume of Smoke Inhaled:</label>
                 <select class="form-control" id="volume" name="volume" onchange="toggleCustomVolume()" required>
                     <option value="6.3">Small (6.3 liters)</option>
@@ -23,38 +31,20 @@
                     <label for="customVolume">Enter Custom Volume (in liters):</label>
                     <input type="number" class="form-control" id="customVolume" name="customVolume" step="0.1">
                 </div>
+
+                <div class="form-group mt-2">
+                    <label for="inhalationTime">Inhalation Time (in seconds):</label>
+                    <input type="number" class="form-control" id="inhalationTime" name="inhalationTime" required>
+                </div>
+            </div>
+
+            <div id="blinkersField" class="form-group" style="display: none;">
+                <label for="blinkers">Number of Blinkers:</label>
+                <input type="number" class="form-control" id="blinkers" name="blinkers" min="1" required>
             </div>
 
             <div class="form-group">
-                <label for="thcConcentration">THC Concentration in Vape Liquid (in percentage):</label>
-                <input type="number" class="form-control" id="thcConcentration" name="thcConcentration" step="0.1" min="0" max="100" required>
-            </div>
-
-            <div class="form-group">
-                <label for="inhalationTime">Inhalation Time (in seconds):</label>
-                <input type="number" class="form-control" id="inhalationTime" name="inhalationTime" required>
-            </div>
-
-            <div class="form-group">
-                <label for="strain">Type of Strain:</label>
-                <select class="form-control" id="strain" name="strain" required>
-                    <option value="sativa">Sativa</option>
-                    <option value="indica">Indica</option>
-                    <option value="hybrid">Hybrid</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label for="frequency">Frequency of Use:</label>
-                <select class="form-control" id="frequency" name="frequency" required>
-                    <option value="daily">Daily</option>
-                    <option value="weekly">Weekly</option>
-                    <option value="monthly">Monthly</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label for="bodyWeight">Body Weight (in kg):</label>
+                <label for="bodyWeight">Body Weight (in lbs):</label>
                 <input type="number" class="form-control" id="bodyWeight" name="bodyWeight" step="0.1" required>
             </div>
 
@@ -76,7 +66,7 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <!-- Your custom JavaScript -->
+    <!-- Custom JavaScript -->
     <script src="script.js"></script>
 </body>
 </html>
