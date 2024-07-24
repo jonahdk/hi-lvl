@@ -118,7 +118,7 @@ function loadSessionsAndBodyWeightFromCookies() {
     savedBodyWeight = bodyWeightLbs;
 }
 
-// Function to display sessions and calculate cumulative high level
+// Function to display sessions
 function displaySessions() {
     const sessionsContainer = document.getElementById('sessions');
     sessionsContainer.innerHTML = '';
@@ -158,41 +158,47 @@ function calculateCumulativeHighLevel() {
         cumulativeHighLevel += highLevel;
     });
 
-    // Normalize cumulative high level to 0-100 scale
-    const normalizedCumulativeHighLevel = Math.min((cumulativeHighLevel / 100) * 100, 100);
+    // Display result
+    displayResult(cumulativeHighLevel);
+}
 
-    // Calculate time until high level reaches 0
-    const timeToZero = (Math.log(1 / (normalizedCumulativeHighLevel / 100)) / -decayConstant).toFixed(2); // in hours
-
-    // Calculate time until high level reaches 99.99 if score is 100
-    let timeTo99_99 = '';
-    if (normalizedCumulativeHighLevel === 100) {
-        timeTo99_99 = (Math.log(100 / 99.99) / decayConstant).toFixed(2); // in hours
-    }
-
-    // Determine side effects based on normalized cumulative high level
+// Function to display the result
+function displayResult(cumulativeHighLevel) {
     let sideEffects = "";
-    if (normalizedCumulativeHighLevel >= 0 && normalizedCumulativeHighLevel <= 10) {
+    if (cumulativeHighLevel >= 0 && cumulativeHighLevel <= 10) {
         sideEffects = "Mild to moderate effects. Users may feel slightly relaxed, increased appetite, dry mouth.";
-    } else if (normalizedCumulativeHighLevel > 10 && normalizedCumulativeHighLevel <= 30) {
+    } else if (cumulativeHighLevel > 10 && cumulativeHighLevel <= 30) {
         sideEffects = "Moderate to moderately high effects. Users may experience euphoria, altered perception of time, increased heart rate.";
-    } else if (normalizedCumulativeHighLevel > 30 && normalizedCumulativeHighLevel <= 50) {
+    } else if (cumulativeHighLevel > 30 && cumulativeHighLevel <= 50) {
         sideEffects = "High effects. Pronounced euphoria, impaired short-term memory, increased sensory perception.";
-    } else if (normalizedCumulativeHighLevel > 50 && normalizedCumulativeHighLevel <= 70) {
+    } else if (cumulativeHighLevel > 50 && cumulativeHighLevel <= 70) {
         sideEffects = "Very high effects. Intense euphoria, hallucinations, impaired motor coordination, heightened sensitivity to light and sound.";
-    } else if (normalizedCumulativeHighLevel > 70 && normalizedCumulativeHighLevel <= 100) {
+    } else if (cumulativeHighLevel > 70) {
         sideEffects = "Extremely high effects. Overwhelming euphoria, paranoia, intense hallucinations, significant impairment of motor skills, sedation.";
     }
 
-    // Display result
+    // Display the result with a button for calculating decay
     const resultElement = document.getElementById('result');
     resultElement.innerHTML = `
         <div class="alert alert-success" role="alert">
-            <p>The estimated cumulative high level is: ${normalizedCumulativeHighLevel.toFixed(2)} out of 100</p>
+            <p>The estimated cumulative high level is: ${cumulativeHighLevel.toFixed(2)}</p>
             <p><strong>Side Effects:</strong></p>
             <p>${sideEffects}</p>
-            <p><strong>Time until high level reaches 0:</strong> ${timeToZero} hours</p>
-            ${timeTo99_99 ? `<p><strong>Time until high level reaches 99.99:</strong> ${timeTo99_99} hours</p>` : ''}
+            <button class="btn btn-primary" onclick="calculateDecayEffect(${cumulativeHighLevel})">Calculate Decay Effect</button>
+        </div>`;
+}
+
+// Function to calculate the decay effect on the high level
+function calculateDecayEffect(initialHighLevel) {
+    // Calculate time until high level reaches 0 due to decay
+    const timeToZero = (Math.log(1 / (initialHighLevel / 100)) / -decayConstant).toFixed(2); // in hours
+
+    // Update the result element with decay information
+    const resultElement = document.getElementById('result');
+    resultElement.innerHTML += `
+        <div class="alert alert-info mt-3" role="alert">
+            <p><strong>Decay Calculation:</strong></p>
+            <p>Time until high level reaches 0: ${timeToZero} hours</p>
         </div>`;
 }
 
@@ -214,3 +220,26 @@ document.addEventListener('DOMContentLoaded', () => {
     displaySessions();
     calculateCumulativeHighLevel();
 });
+
+// Function to load sessions and body weight from cookies
+function loadSessionsAndBodyWeightFromCookies() {
+    const cookies = document.cookie.split(';');
+    let sessionsJSON = '';
+    let bodyWeightLbs = null;
+
+    // Find the cookies containing session data and body weight
+    cookies.forEach(cookie => {
+        if (cookie.trim().startsWith('thc_sessions=')) {
+            sessionsJSON = cookie.trim().substring('thc_sessions='.length);
+        }
+        if (cookie.trim().startsWith('body_weight=')) {
+            bodyWeightLbs = parseFloat(cookie.trim().substring('body_weight='.length));
+        }
+    });
+
+    // Parse sessions JSON string to array
+    sessions = JSON.parse(sessionsJSON) || [];
+
+    // Load body weight
+    savedBodyWeight = bodyWeightLbs;
+}
