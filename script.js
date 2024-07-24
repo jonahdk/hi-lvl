@@ -3,19 +3,12 @@ const lungCapacity = 6;  // Average lung capacity in liters
 const baselineTHC = 5;   // Baseline THC concentration in smoke (assuming no dilution)
 const standardTime = 5;  // Standard time in seconds
 const decayConstant = Math.log(2) / 2;  // Half-life of THC is approximately 2 hours
-const strainFactors = {
-    sativa: 1.0,
-    indica: 2.0,
-    hybrid: 1.5
-};
-const frequencyFactors = {
-    daily: 1.5,
-    weekly: 1.2,
-    monthly: 1.0
-};
+const blinkerVolume = 20; // 1 Blinker is 20 liters
+const blinkerTime = 10;  // 1 Blinker is 10 seconds
 
 // Global array to store sessions
 let sessions = [];
+let savedBodyWeight = null;
 
 // Function to toggle visibility of custom volume field
 function toggleCustomVolume() {
@@ -28,40 +21,59 @@ function toggleCustomVolume() {
     }
 }
 
+// Function to toggle measurement fields based on the selected method
+function toggleMeasurementFields() {
+    const measurementMethod = document.getElementById('measurementMethod').value;
+    const litersSecondsFields = document.getElementById('litersSecondsFields');
+    const blinkersField = document.getElementById('blinkersField');
+
+    if (measurementMethod === 'litersSeconds') {
+        litersSecondsFields.style.display = 'block';
+        blinkersField.style.display = 'none';
+    } else if (measurementMethod === 'blinkers') {
+        litersSecondsFields.style.display = 'none';
+        blinkersField.style.display = 'block';
+    }
+}
+
 // Function to add a new session
 function addSession() {
     // Fetch user inputs for the new session
-    const volumeSelect = document.getElementById('volume');
-    let volume = parseFloat(volumeSelect.value);
-    if (volumeSelect.value === 'custom') {
-        volume = parseFloat(document.getElementById('customVolume').value);
+    const measurementMethod = document.getElementById('measurementMethod').value;
+    let volume, inhalationTime;
+
+    if (measurementMethod === 'litersSeconds') {
+        const volumeSelect = document.getElementById('volume');
+        volume = parseFloat(volumeSelect.value);
+        if (volumeSelect.value === 'custom') {
+            volume = parseFloat(document.getElementById('customVolume').value);
+        }
+        inhalationTime = parseFloat(document.getElementById('inhalationTime').value);
+    } else if (measurementMethod === 'blinkers') {
+        const blinkers = parseFloat(document.getElementById('blinkers').value);
+        volume = blinkers * blinkerVolume;
+        inhalationTime = blinkers * blinkerTime;
     }
 
-    const thcConcentrationPercentage = parseFloat(document.getElementById('thcConcentration').value);
-    const inhalationTime = parseFloat(document.getElementById('inhalationTime').value);
-    const strain = document.getElementById('strain').value.toLowerCase();
-    const frequency = document.getElementById('frequency').value.toLowerCase();
-    const bodyWeight = parseFloat(document.getElementById('bodyWeight').value);
-
-    // Calculate THC concentration in decimal form
-    const thcConcentration = thcConcentrationPercentage / 100.0;
+    const bodyWeightLbs = parseFloat(document.getElementById('bodyWeight').value);
+    const bodyWeightKg = bodyWeightLbs * 0.453592; // Convert pounds to kg
 
     // Create session object with timestamp
     const session = {
         timestamp: new Date().toLocaleString(), // Capture current timestamp
         volume: volume,
-        thcConcentration: thcConcentration,
         inhalationTime: inhalationTime,
-        strain: strain,
-        frequency: frequency,
-        bodyWeight: bodyWeight
+        strain: 'sativa',  // Default to Sativa
+        frequency: 'daily',  // Default to daily
+        thcConcentration: 1.0,  // 100% THC concentration
+        bodyWeight: bodyWeightKg
     };
 
     // Add session to array
     sessions.push(session);
 
-    // Save sessions to cookies
-    saveSessionsToCookies();
+    // Save sessions and body weight to cookies
+    saveSessionsAndBodyWeightToCookies(bodyWeightLbs);
 
     // Clear form inputs (optional)
     clearFormInputs();
@@ -71,29 +83,39 @@ function addSession() {
     calculateCumulativeHighLevel();
 }
 
-// Function to save sessions to cookies
-function saveSessionsToCookies() {
+// Function to save sessions and body weight to cookies
+function saveSessionsAndBodyWeightToCookies(bodyWeightLbs) {
     // Convert sessions array to JSON string
     const sessionsJSON = JSON.stringify(sessions);
 
     // Set sessions JSON string as cookie
-    document.cookie = `thc_sessions=${sessionsJSON}; path=/`; // Use a specific cookie name ('thc_sessions') for clarity
+    document.cookie = `thc_sessions=${sessionsJSON}; path=/`;
+
+    // Save body weight as a separate cookie
+    document.cookie = `body_weight=${bodyWeightLbs}; path=/`;
 }
 
-// Function to load sessions from cookies
-function loadSessionsFromCookies() {
+// Function to load sessions and body weight from cookies
+function loadSessionsAndBodyWeightFromCookies() {
     const cookies = document.cookie.split(';');
     let sessionsJSON = '';
+    let bodyWeightLbs = null;
 
-    // Find the cookie containing session data
+    // Find the cookies containing session data and body weight
     cookies.forEach(cookie => {
         if (cookie.trim().startsWith('thc_sessions=')) {
             sessionsJSON = cookie.trim().substring('thc_sessions='.length);
+        }
+        if (cookie.trim().startsWith('body_weight=')) {
+            bodyWeightLbs = parseFloat(cookie.trim().substring('body_weight='.length));
         }
     });
 
     // Parse sessions JSON string to array
     sessions = JSON.parse(sessionsJSON) || [];
+
+    // Load body weight
+    savedBodyWeight = bodyWeightLbs;
 }
 
 // Function to display sessions and calculate cumulative high level
@@ -109,11 +131,11 @@ function displaySessions() {
                 <h5 class="card-title">Session ${index + 1} - ${session.timestamp}</h5>
                 <ul class="list-unstyled">
                     <li><strong>Volume:</strong> ${session.volume} liters</li>
-                    <li><strong>THC Concentration:</strong> ${session.thcConcentration * 100}%</li>
+                    <li><strong>THC Concentration:</strong> 100%</li>
                     <li><strong>Inhalation Time:</strong> ${session.inhalationTime} seconds</li>
-                    <li><strong>Strain:</strong> ${session.strain}</li>
-                    <li><strong>Frequency:</strong> ${session.frequency}</li>
-                    <li><strong>Body Weight:</strong> ${session.bodyWeight} kg</li>
+                    <li><strong>Strain:</strong> Sativa</li>
+                    <li><strong>Frequency:</strong> Daily</li>
+                    <li><strong>Body Weight:</strong> ${(session.bodyWeight * 2.20462).toFixed(2)} lbs</li>
                 </ul>
             </div>`;
         sessionsContainer.appendChild(sessionElement);
@@ -126,16 +148,12 @@ function calculateCumulativeHighLevel() {
 
     // Calculate cumulative high level
     sessions.forEach(session => {
-        const strainFactor = strainFactors[session.strain] || 1.0;
-        const frequencyFactor = frequencyFactors[session.frequency] || 1.0;
-        const standardWeight = 70;
+        const standardWeight = 70; // in kg
         const highLevel = (session.volume / lungCapacity)
                           * (session.thcConcentration / baselineTHC)
                           * (session.inhalationTime / standardTime)
-                          * strainFactor
                           * (standardWeight / session.bodyWeight)
-                          * frequencyFactor
-                          * 178.571425; // Assuming this is a multiplier for adjustment
+                          * 178.571425; // Adjusted multiplier for normalization
 
         cumulativeHighLevel += highLevel;
     });
@@ -174,19 +192,25 @@ function calculateCumulativeHighLevel() {
             <p><strong>Side Effects:</strong></p>
             <p>${sideEffects}</p>
             <p><strong>Time until high level reaches 0:</strong> ${timeToZero} hours</p>
-            ${timeTo99_99 ? `<p><strong>Time until high level reaches 100:</strong> ${timeTo99_99} hours</p>` : ''}
+            ${timeTo99_99 ? `<p><strong>Time until high level reaches 99.99:</strong> ${timeTo99_99} hours</p>` : ''}
         </div>`;
 }
 
 // Function to clear form inputs
 function clearFormInputs() {
     document.getElementById('calculatorForm').reset();
-    toggleCustomVolume(); // Reset the custom volume field visibility
+    toggleMeasurementFields(); // Reset the measurement fields visibility
 }
 
-// Load sessions from cookies on page load
+// Load sessions and body weight from cookies on page load
 document.addEventListener('DOMContentLoaded', () => {
-    loadSessionsFromCookies();
+    loadSessionsAndBodyWeightFromCookies();
+
+    // If body weight is found in cookies, populate the input field
+    if (savedBodyWeight !== null) {
+        document.getElementById('bodyWeight').value = savedBodyWeight;
+    }
+
     displaySessions();
     calculateCumulativeHighLevel();
 });
