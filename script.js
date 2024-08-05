@@ -1,4 +1,4 @@
-// LAST UPDATED: AUGUST 5 2024 AT 0747 UTC
+// LAST UPDATED: AUGUST 5 2024 AT 1754 UTC
 
 // Constants
 const lungCapacity = 6;  // Average lung capacity in liters
@@ -173,7 +173,7 @@ function calculateCumulativeHighLevel() {
         const bodyWeight = session.bodyWeight;
 
         // Calculate THC amount absorbed
-        const thcAmount = (volume * thcConcentration * strainFactor) / (bodyWeight * lungCapacity) * 178.571425;
+        const thcAmount = (volume * thcConcentration * strainFactor) / (bodyWeight * lungCapacity) * 1426.2893370607;
 
         // Calculate cumulative high level
         cumulativeHighLevel += thcAmount * (1 - Math.exp(-decayConstant * inhalationTime));
