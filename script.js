@@ -1,5 +1,4 @@
-// LAST UPDATED: AUGUST 5 2024 AT 0733 UTC
-
+// LAST UPDATED: AUGUST 5 2024 AT 0740 UTC
 
 // Constants
 const lungCapacity = 6;  // Average lung capacity in liters
@@ -8,6 +7,7 @@ const standardTime = 5;  // Standard time in seconds
 const decayConstant = Math.log(2) / 2;  // Half-life of THC is approximately 2 hours
 const blinkerVolume = 20; // 1 Blinker is 20 liters
 const blinkerTime = 10;  // 1 Blinker is 10 seconds
+let strainFactor = 2.0;  // Strain factor for 'indica'
 
 // Global array to store sessions
 let sessions = [];
@@ -22,19 +22,6 @@ function toggleCustomVolume() {
     } else {
         customVolumeField.style.display = 'none';
     }
-}
-
-const strain = 'indica'
-const hybridRatio = 50
-
-if (strain === 'sativa') {
-    let strainFactor = 1.0;
-}
-else if (strain === 'indica') {
-    let strainFactor = 2.0;
-}
-else if (strain === 'hybrid') {
-    let strainFactor = 1.0 + ( hybridRatio / 100 );
 }
 
 // Function to toggle measurement fields based on the selected method
@@ -79,7 +66,7 @@ function addSession() {
         timestamp: new Date().toLocaleString(), // Capture current timestamp
         volume: volume,
         inhalationTime: inhalationTime,
-        strain: 'sativa',  // Default to Sativa
+        strain: 'indica',  // Set strain to 'indica'
         frequency: 'daily',  // Default to daily
         thcConcentration: 1.0,  // 100% THC concentration
         bodyWeight: bodyWeightKg
@@ -137,144 +124,71 @@ function loadSessionsAndBodyWeightFromCookies() {
 // Function to display sessions
 function displaySessions() {
     const sessionsContainer = document.getElementById('sessions');
-    sessionsContainer.innerHTML = '';
+    sessionsContainer.innerHTML = ''; // Clear existing sessions
 
-    sessions.forEach((session, index) => {
-        const sessionElement = document.createElement('div');
-        sessionElement.classList.add('card', 'mb-2');
-        sessionElement.innerHTML = `
-            <div class="card-body">
-                <h5 class="card-title">Session ${index + 1} - ${session.timestamp}</h5>
-                <ul class="list-unstyled">
-                    <li><strong>Volume:</strong> ${session.volume} liters</li>
-                    <li><strong>THC Concentration:</strong> 100%</li>
-                    <li><strong>Inhalation Time:</strong> ${session.inhalationTime} seconds</li>
-                    <li><strong>Strain:</strong> Sativa</li>
-                    <li><strong>Frequency:</strong> Daily</li>
-                    <li><strong>Body Weight:</strong> ${(session.bodyWeight * 2.20462).toFixed(2)} lbs</li>
-                </ul>
-            </div>`;
-        sessionsContainer.appendChild(sessionElement);
+    // Create a table to display sessions
+    const table = document.createElement('table');
+    table.className = 'table table-striped';
+
+    // Create table headers
+    const thead = document.createElement('thead');
+    const headerRow = document.createElement('tr');
+    const headers = ['Timestamp', 'Volume (L)', 'Inhalation Time (s)', 'Strain', 'Frequency', 'THC Concentration', 'Body Weight (kg)'];
+    headers.forEach(header => {
+        const th = document.createElement('th');
+        th.textContent = header;
+        headerRow.appendChild(th);
     });
+    thead.appendChild(headerRow);
+    table.appendChild(thead);
+
+    // Create table body
+    const tbody = document.createElement('tbody');
+    sessions.forEach(session => {
+        const row = document.createElement('tr');
+        Object.values(session).forEach(value => {
+            const td = document.createElement('td');
+            td.textContent = value;
+            row.appendChild(td);
+        });
+        tbody.appendChild(row);
+    });
+    table.appendChild(tbody);
+
+    // Append table to sessions container
+    sessionsContainer.appendChild(table);
 }
 
-// Function to calculate cumulative high level based on all sessions
+// Function to calculate cumulative high level
 function calculateCumulativeHighLevel() {
-    let cumulativeHighLevel = 0;
+    const resultElement = document.getElementById('result');
+    resultElement.innerHTML = ''; // Clear existing result
 
     // Calculate cumulative high level
+    let cumulativeHighLevel = 0;
     sessions.forEach(session => {
-        const standardWeight = 70; // in kg
-        const highLevel = (session.volume / lungCapacity)
-                          * (session.thcConcentration / baselineTHC)
-                          * (session.inhalationTime / standardTime)
-                          * (standardWeight / session.bodyWeight)
-                          * strainFactor
-                          * 178.571425; // Adjusted multiplier for normalization
+        const volume = session.volume;
+        const inhalationTime = session.inhalationTime;
+        const thcConcentration = session.thcConcentration;
+        const bodyWeight = session.bodyWeight;
 
-        cumulativeHighLevel += highLevel;
+        // Calculate THC amount absorbed
+        const thcAmount = (volume * thcConcentration * strainFactor) / (bodyWeight * lungCapacity);
+
+        // Calculate cumulative high level
+        cumulativeHighLevel += thcAmount * (1 - Math.exp(-decayConstant * inhalationTime));
     });
 
-    // Display result
-    displayResult(cumulativeHighLevel);
-}
-
-// Function to display the result
-function displayResult(cumulativeHighLevel) {
-    let sideEffects = "";
-    if (cumulativeHighLevel >= 0 && cumulativeHighLevel <= 10) {
-        sideEffects = "Mild to moderate effects. Users may feel slightly relaxed, increased appetite, dry mouth.";
-    } else if (cumulativeHighLevel > 10 && cumulativeHighLevel <= 30) {
-        sideEffects = "Moderate to moderately high effects. Users may experience euphoria, altered perception of time, increased heart rate.";
-    } else if (cumulativeHighLevel > 30 && cumulativeHighLevel <= 50) {
-        sideEffects = "High effects. Pronounced euphoria, impaired short-term memory, increased sensory perception.";
-    } else if (cumulativeHighLevel > 50 && cumulativeHighLevel <= 70) {
-        sideEffects = "Very high effects. Intense euphoria, hallucinations, impaired motor coordination, heightened sensitivity to light and sound.";
-    } else if (cumulativeHighLevel > 70) {
-        sideEffects = "Extremely high effects. Overwhelming euphoria, paranoia, intense hallucinations, significant impairment of motor skills, sedation.";
-    }
-
-    // Display the result with a button for calculating decay
-    const resultElement = document.getElementById('result');
-    resultElement.innerHTML = `
-        <div class="alert alert-success" role="alert">
-            <p>The estimated cumulative high level is: ${cumulativeHighLevel.toFixed(2)}</p>
-            <p><strong>Side Effects:</strong></p>
-            <p>${sideEffects}</p>
-            <button class="btn btn-primary" onclick="calculateDecayEffect(${cumulativeHighLevel})">Calculate Decay Effect</button>
-        </div>`;
-}
-
-// Function to calculate the decay effect on the high level
-function calculateDecayEffect(initialHighLevel) {
-    const startTime = new Date(sessions[0].timestamp); // Assuming sessions are sorted, take the earliest timestamp
-    const currentTime = new Date();
-    const elapsedTime = (currentTime - startTime) / (1000 * 60 * 60); // Time in hours
-
-    // Calculate the number of half-lives elapsed
-    const halfLivesElapsed = elapsedTime / 2;
-
-    // Calculate the decayed high level using the formula: initialHighLevel * (1/2) ^ halfLivesElapsed
-    const decayedHighLevel = initialHighLevel * Math.pow(0.5, halfLivesElapsed);
-
-    // Update the result element with decay information
-    const resultElement = document.getElementById('result');
-    resultElement.innerHTML += `
-        <div class="alert alert-info mt-3" role="alert" id="decayAlert">
-            <button type="button" class="close" aria-label="Close" onclick="closeDecayAlert()">
-                <span aria-hidden="true">&times;</span>
-            </button>
-            <p><strong>Decay Calculation:</strong></p>
-            <p>The decayed cumulative high level is: ${decayedHighLevel.toFixed(2)}</p>
-        </div>`;
-}
-
-// Function to close the decay alert
-function closeDecayAlert() {
-    const decayAlert = document.getElementById('decayAlert');
-    if (decayAlert) {
-        decayAlert.remove();
-    }
+    // Display cumulative high level
+    const resultText = `Cumulative High Level: ${cumulativeHighLevel.toFixed(2)}`;
+    resultElement.textContent = resultText;
 }
 
 // Function to clear form inputs
 function clearFormInputs() {
-    document.getElementById('calculatorForm').reset();
-    toggleMeasurementFields(); // Reset the measurement fields visibility
+    const form = document.getElementById('calculatorForm');
+    form.reset();
 }
 
 // Load sessions and body weight from cookies on page load
-document.addEventListener('DOMContentLoaded', () => {
-    loadSessionsAndBodyWeightFromCookies();
-
-    // If body weight is found in cookies, populate the input field
-    if (savedBodyWeight !== null) {
-        document.getElementById('bodyWeight').value = savedBodyWeight;
-    }
-
-    displaySessions();
-    calculateCumulativeHighLevel();
-});
-
-// Function to load sessions and body weight from cookies
-function loadSessionsAndBodyWeightFromCookies() {
-    const cookies = document.cookie.split(';');
-    let sessionsJSON = '';
-    let bodyWeightLbs = null;
-
-    // Find the cookies containing session data and body weight
-    cookies.forEach(cookie => {
-        if (cookie.trim().startsWith('thc_sessions=')) {
-            sessionsJSON = cookie.trim().substring('thc_sessions='.length);
-        }
-        if (cookie.trim().startsWith('body_weight=')) {
-            bodyWeightLbs = parseFloat(cookie.trim().substring('body_weight='.length));
-        }
-    });
-
-    // Parse sessions JSON string to array
-    sessions = JSON.parse(sessionsJSON) || [];
-
-    // Load body weight
-    savedBodyWeight = bodyWeightLbs;
-}
+loadSessionsAndBodyWeightFromCookies();
