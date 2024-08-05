@@ -24,6 +24,19 @@ function toggleCustomVolume() {
     }
 }
 
+const strain = 'indica'
+const hybridRatio = 50
+
+if (strain === 'sativa') {
+    let strainFactor = 1.0;
+}
+else if (strain === 'indica') {
+    let strainFactor = 2.0;
+}
+else if (strain === 'hybrid') {
+    let strainFactor = 1.0 + ( hybridRatio / 100 );
+}
+
 // Function to toggle measurement fields based on the selected method
 function toggleMeasurementFields() {
     const measurementMethod = document.getElementById('measurementMethod').value;
@@ -156,6 +169,7 @@ function calculateCumulativeHighLevel() {
                           * (session.thcConcentration / baselineTHC)
                           * (session.inhalationTime / standardTime)
                           * (standardWeight / session.bodyWeight)
+                          * strainFactor
                           * 178.571425; // Adjusted multiplier for normalization
 
         cumulativeHighLevel += highLevel;
