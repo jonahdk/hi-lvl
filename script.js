@@ -1,13 +1,16 @@
+// LAST UPDATED: AUG 17 @ 308 PM
+
 // Constants
 const DECAY_CONSTANT = 0.3466; // hardcoded decay constant
 const LUNG_CAPACITY = 10; // hardcoded lung capacity
-const STRAIN_FACTOR = 0.85; // hardcoded strain factor for Candyland/Kandyland
+const STRAIN_FACTOR = 1.3; // hardcoded strain factor for Candyland/Kandyland
+const THC_CONCENTRATION = 0.20; // hardcoded THC concentration (20%)
 const CUMULATIVE_HIGH_LEVEL_FACTOR = 1426.2893370607;
 
 // Function to calculate the cumulative high level
-function calculateCumulativeHighLevel(volume, thcConcentration, bodyWeight, inhalationTime) {
+function calculateCumulativeHighLevel(volume, bodyWeight, inhalationTime) {
     try {
-        let thcAmount = (volume * thcConcentration * STRAIN_FACTOR) / (bodyWeight * LUNG_CAPACITY);
+        let thcAmount = (volume * THC_CONCENTRATION * STRAIN_FACTOR) / (bodyWeight * LUNG_CAPACITY);
         let cumulativeHighLevel = thcAmount * (1 - Math.exp(-DECAY_CONSTANT * inhalationTime)) * CUMULATIVE_HIGH_LEVEL_FACTOR;
         return cumulativeHighLevel;
     } catch (error) {
@@ -21,16 +24,15 @@ document.getElementById('calc-form').addEventListener('submit', function(event) 
     event.preventDefault();
 
     let volume = parseFloat(document.getElementById('volume').value);
-    let thcConcentration = parseFloat(document.getElementById('thc_concentration').value);
     let bodyWeight = parseFloat(document.getElementById('body_weight').value);
     let inhalationTime = parseFloat(document.getElementById('inhalation_time').value);
 
-    if (isNaN(volume) || isNaN(thcConcentration) || isNaN(bodyWeight) || isNaN(inhalationTime)) {
+    if (isNaN(volume) || isNaN(bodyWeight) || isNaN(inhalationTime)) {
         alert('Please enter valid numbers for all fields.');
         return;
     }
 
-    let cumulativeHighLevel = calculateCumulativeHighLevel(volume, thcConcentration, bodyWeight, inhalationTime);
+    let cumulativeHighLevel = calculateCumulativeHighLevel(volume, bodyWeight, inhalationTime);
 
     // Retrieve previous cumulative high level from localStorage
     let previousHighLevel = parseFloat(localStorage.getItem('cumulative_high_level')) || 0;
