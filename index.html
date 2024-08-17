@@ -29,20 +29,8 @@
                 <input type="number" step="0.01" class="form-control" id="thc_concentration" required>
             </div>
             <div class="mb-3">
-                <label for="strain_factor" class="form-label">Strain Factor:</label>
-                <input type="number" step="0.01" class="form-control" id="strain_factor" required>
-            </div>
-            <div class="mb-3">
                 <label for="body_weight" class="form-label">Body Weight (kg):</label>
                 <input type="number" class="form-control" id="body_weight" required>
-            </div>
-            <div class="mb-3">
-                <label for="lung_capacity" class="form-label">Lung Capacity (liters):</label>
-                <input type="number" class="form-control" id="lung_capacity" required>
-            </div>
-            <div class="mb-3">
-                <label for="decay_constant" class="form-label">Decay Constant:</label>
-                <input type="number" step="0.0001" class="form-control" id="decay_constant" value="0.3466" required>
             </div>
             <div class="mb-3">
                 <label for="inhalation_time" class="form-label">Inhalation Time (seconds):</label>
@@ -62,51 +50,6 @@
 
     <!-- Bootstrap JS and dependencies -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Custom JS for calculation and localStorage -->
-    <script>
-        // Function to calculate the cumulative high level
-        function calculateCumulativeHighLevel(volume, thc_concentration, strain_factor, body_weight, lung_capacity, decay_constant, inhalation_time) {
-            let thc_amount = (volume * thc_concentration * strain_factor) / (body_weight * lung_capacity);
-            let cumulative_high_level = thc_amount * (1 - Math.exp(-decay_constant * inhalation_time)) * 1426.2893370607;
-            return cumulative_high_level;
-        }
-
-        // Event listener for form submission
-        document.getElementById('calc-form').addEventListener('submit', function(event) {
-            event.preventDefault();
-
-            let volume = parseFloat(document.getElementById('volume').value);
-            let thc_concentration = parseFloat(document.getElementById('thc_concentration').value);
-            let strain_factor = parseFloat(document.getElementById('strain_factor').value);
-            let body_weight = parseFloat(document.getElementById('body_weight').value);
-            let lung_capacity = parseFloat(document.getElementById('lung_capacity').value);
-            let decay_constant = parseFloat(document.getElementById('decay_constant').value);
-            let inhalation_time = parseFloat(document.getElementById('inhalation_time').value);
-
-            let cumulative_high_level = calculateCumulativeHighLevel(volume, thc_concentration, strain_factor, body_weight, lung_capacity, decay_constant, inhalation_time);
-
-            // Retrieve previous cumulative high level from localStorage
-            let previous_high_level = parseFloat(localStorage.getItem('cumulative_high_level')) || 0;
-            cumulative_high_level += previous_high_level;
-
-            // Update the result on the page
-            document.getElementById('cumulative_high_level').textContent = `Cumulative High Level: ${cumulative_high_level.toFixed(2)}`;
-
-            // Store the updated cumulative high level in localStorage
-            localStorage.setItem('cumulative_high_level', cumulative_high_level);
-        });
-
-        // Function to clear history
-        function clearHistory() {
-            localStorage.removeItem('cumulative_high_level');
-            document.getElementById('cumulative_high_level').textContent = 'Cumulative High Level: 0';
-        }
-
-        // Initialize the cumulative high level on page load
-        window.onload = function() {
-            let stored_high_level = parseFloat(localStorage.getItem('cumulative_high_level')) || 0;
-            document.getElementById('cumulative_high_level').textContent = `Cumulative High Level: ${stored_high_level.toFixed(2)}`;
-        };
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
