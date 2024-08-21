@@ -21,17 +21,29 @@
             </div>
             <div class="mb-3">
                 <label for="sex" class="form-label">Sex:</label>
-                <select class="form-select" id="sex" required>
-                    <option value="male">Male</option>
-                    <option value="female">Female</option>
-                </select>
+                <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" id="sex-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Select Sex
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="sex-dropdown">
+                        <a class="dropdown-item" href="#" data-value="male">Male</a>
+                        <a class="dropdown-item" href="#" data-value="female">Female</a>
+                    </div>
+                    <input type="hidden" id="sex" name="sex" value="">
+                </div>
             </div>
             <div class="mb-3">
                 <label for="hrt" class="form-label">On HRT (Hormone Replacement Therapy)?</label>
-                <select class="form-select" id="hrt" required>
-                    <option value="yes">Yes</option>
-                    <option value="no">No</option>
-                </select>
+                <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" id="hrt-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Select HRT
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="hrt-dropdown">
+                        <a class="dropdown-item" href="#" data-value="yes">Yes</a>
+                        <a class="dropdown-item" href="#" data-value="no">No</a>
+                    </div>
+                    <input type="hidden" id="hrt" name="hrt" value="">
+                </div>
             </div>
             <div class="mb-3">
                 <label for="height_ft" class="form-label">Height (ft):</label>
