@@ -1,4 +1,4 @@
-// LAST UPDATED: AUG 21 @ 13:55 UTC
+// LAST UPDATED: AUG 21 @ 14:09 UTC
 
 const lungCapacity = 10;
 const strainFactor = 1.3;
@@ -6,8 +6,7 @@ const thcConcentration = 0.20;
 const normalizationFactor = 1426.2893370607;
 const estrogenMultiplier = 1.5;
 
-// Decay constant for 2 hour half-life
-const decayConstant = Math.log(2) / (2 * 60 * 60); // 2 hours in seconds
+const decayConstant = Math.log(2) / (2 * 60 * 60);
 
 function calculateBMI(weight, height) {
     const weightInKg = weight * 0.45359237;
@@ -39,7 +38,6 @@ function applyDecay(cumulativeHighLevel, timeElapsed) {
 }
 
 $(document).ready(function() {
-    // Add event listeners to the dropdown items
     $('.dropdown-item').on('click', function(event) {
         event.preventDefault();
         let value = $(this).data('value');
@@ -73,7 +71,7 @@ $(document).ready(function() {
         let previousHighLevel = parseFloat(localStorage.getItem('cumulative_high_level')) || 0;
         cumulativeHighLevel += previousHighLevel;
 
-        lastCalculationTime = new Date().getTime() / 1000; // Store the current time in seconds
+        lastCalculationTime = new Date().getTime() / 1000;
 
         $('#cumulative_high_level').text(`Cumulative High Level: ${cumulativeHighLevel.toFixed(2)}`);
 
@@ -82,8 +80,8 @@ $(document).ready(function() {
 
     $('#recalculate-button').on('click', function() {
         let storedHighLevel = parseFloat(localStorage.getItem('cumulative_high_level')) || 0;
-        let currentTime = new Date().getTime() / 1000; // Get the current time in seconds
-        let timeElapsed = currentTime - lastCalculationTime; // Calculate the time elapsed since the last calculation
+        let currentTime = new Date().getTime() / 1000;
+        let timeElapsed = currentTime - lastCalculationTime;
 
         if (lastCalculationTime === null) {
             alert('Please calculate the cumulative high level first.');
