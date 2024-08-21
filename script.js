@@ -1,4 +1,4 @@
-// LAST UPDATED: AUG 21 @ 1310 UTC
+// LAST UPDATED: AUG 21 @ 13:10 UTC
 
 // Constants
 const DECAY_CONSTANT = 0.3466; // hardcoded decay constant
