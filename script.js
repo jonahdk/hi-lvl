@@ -1,4 +1,4 @@
-// LAST UPDATED: AUG 21 @ 14:09 UTC
+// LAST UPDATED: AUG 21 @ 14:22 UTC
 
 const lungCapacity = 10;
 const strainFactor = 1.3;
@@ -38,15 +38,6 @@ function applyDecay(cumulativeHighLevel, timeElapsed) {
 }
 
 $(document).ready(function() {
-    $('.dropdown-item').on('click', function(event) {
-        event.preventDefault();
-        let value = $(this).data('value');
-        let dropdownId = $(this).closest('.dropdown').find('.dropdown-toggle').attr('id');
-        let hiddenInputId = dropdownId.replace('-dropdown', '');
-        $('#' + hiddenInputId).val(value);
-        $('#' + dropdownId).text($(this).text());
-    });
-
     let lastCalculationTime = null;
 
     $('#calc-form').submit(function(event) {
