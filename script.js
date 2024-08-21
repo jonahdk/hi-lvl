@@ -3,7 +3,7 @@
 const lungCapacity = 10;
 const strainFactor = 1.3;
 const thcConcentration = 0.20;
-const normalizationFactor = 1426.2893370607;
+const normalizationFactor = 25023.19;
 const estrogenMultiplier = 1.5;
 
 const decayConstant = Math.log(2) / (2 * 60 * 60);
