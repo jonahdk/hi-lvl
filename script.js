@@ -1,28 +1,30 @@
-// LAST UPDATED: AUG 21 @ 13:29 UTC
+// LAST UPDATED: AUG 21 @ 13:46 UTC
 
-// Constants
-const DECAY_CONSTANT = 0.3466; // hardcoded decay constant
-const LUNG_CAPACITY = 10; // hardcoded lung capacity
-const STRAIN_FACTOR = 1.3; // hardcoded strain factor for Candyland/Kandyland
-const THC_CONCENTRATION = 0.20; // hardcoded THC concentration (20%)
-const CUMULATIVE_HIGH_LEVEL_FACTOR = 1426.2893370607;
+const decayConstant = 0.3466;
+const lungCapacity = 10;
+const strainFactor = 1.3;
+const thcConcentration = 0.20;
+const normalizationFactor = 1426.2893370607;
+const estrogenMultiplier = 1.5;
 
-// Function to calculate BMI
 function calculateBMI(weight, height) {
     const weightInKg = weight * 0.45359237;
-    const heightInMeters = ((height * 0.0254) * 12) / 12; // convert height to meters
+    const heightInMeters = ((height * 0.0254) * 12) / 12;
     return weightInKg / (heightInMeters ** 2);
 }
 
-// Function to calculate the cumulative high level
-function calculateCumulativeHighLevel(volume, bodyWeight, sex, hrt, height, age, inhalationTime) {
+function calculateCumulativeHighLevel(volume, bmi, sex, hrt, inhalationTime) {
     try {
-        if (volume <= 0 || bodyWeight <= 0 || height <= 0 || age <= 0 || inhalationTime <= 0) {
+        if (volume <= 0 || bmi <= 0 || inhalationTime <= 0) {
             throw new Error('All input values must be positive numbers.');
         }
-        let bmi = calculateBMI(bodyWeight, (parseInt($('#height_ft').val()) * 12) + parseInt($('#height_in').val()));
-        let thcAmount = (volume * THC_CONCENTRATION * STRAIN_FACTOR) / (bodyWeight * LUNG_CAPACITY);
-        let cumulativeHighLevel = thcAmount * (1 - Math.exp(-DECAY_CONSTANT * inhalationTime)) * CUMULATIVE_HIGH_LEVEL_FACTOR;
+        let thcAmount = (volume * thcConcentration * strainFactor) / (bmi * lungCapacity);
+        let cumulativeHighLevel = thcAmount * (1 - Math.exp(-decayConstant * inhalationTime)) * normalizationFactor;
+
+        if ((sex === 'female' && hrt === 'no') || (sex === 'male' && hrt === 'yes')) {
+            cumulativeHighLevel *= estrogenMultiplier;
+        }
+
         return cumulativeHighLevel;
     } catch (error) {
         alert('Error calculating cumulative high level: ' + error.message);
@@ -30,7 +32,6 @@ function calculateCumulativeHighLevel(volume, bodyWeight, sex, hrt, height, age,
     }
 }
 
-// Event listener for form submission
 $('#calc-form').submit(function(event) {
     event.preventDefault();
 
@@ -47,26 +48,22 @@ $('#calc-form').submit(function(event) {
         return;
     }
 
-    let cumulativeHighLevel = calculateCumulativeHighLevel(volume, bodyWeight, sex, hrt, height, age, inhalationTime);
+    let bmi = calculateBMI(bodyWeight, height);
+    let cumulativeHighLevel = calculateCumulativeHighLevel(volume, bmi, sex, hrt, inhalationTime);
 
-    // Retrieve previous cumulative high level from localStorage
     let previousHighLevel = parseFloat(localStorage.getItem('cumulative_high_level')) || 0;
     cumulativeHighLevel += previousHighLevel;
 
-    // Update the result on the page
     $('#cumulative_high_level').text(`Cumulative High Level: ${cumulativeHighLevel.toFixed(2)}`);
 
-    // Store the updated cumulative high level in localStorage
     localStorage.setItem('cumulative_high_level', cumulativeHighLevel);
 });
 
-// Function to clear history
 function clearHistory() {
     localStorage.removeItem('cumulative_high_level');
     $('#cumulative_high_level').text('Cumulative High Level: 0');
 }
 
-// Initialize the cumulative high level on page load
 $(window).on('load', function() {
     let storedHighLevel = parseFloat(localStorage.getItem('cumulative_high_level')) || 0;
     $('#cumulative_high_level').text(`Cumulative High Level: ${storedHighLevel.toFixed(2)}`);
